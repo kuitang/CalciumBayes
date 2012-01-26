@@ -67,18 +67,14 @@ blocks of neural computation.
 As we learn more and more about the workings of the neuron and of
 specialized brain regions, the question increasingly becomes, how
 do these pieces sum to a whole? How do the patterns of connectivity
-give rise to vision, memory, motor function, and so on?
-
-Currently, a broad picture of the circuitry, or graphical connectivity,
-of the brain does not exist, but many projects are underway to solve
-this problem (CITE STUFF - I can just pull a few from the research
-I did last week). These efforts examine connectivity of the brain
-on scales ranging from brain regions each comprised of hundreds of
-millions cells down to microcircuits of only a few cells. Further,
+give rise to vision, memory, motor function, and so on? Currently, a broad picture of the circuitry, or graphical connectivity,
+of the brain does not exist, but several projects are underway to organize the solution of
+this problem \citep{Marcus2011, Bohland2009}. Efforts to examine connectivity of the brain focus on scales ranging from brain regions each comprised of hundreds of
+millions of cells down to microcircuits of only a few cells. Further,
 some of these projects address structural connectivity and others
-functional connectivity.
+functional connectivity \citep{KnowlesBarley2011, Jain2010, Ropireddy2011, Chiang2011, bhattacharya2006}.
 
-In this project, we will on model the functional connectivity of
+In this project, we will model the functional connectivity of
 microcircuits: how electrical activity in one neuron influences
 activities in other neurons. Importantly, functional connectivity
 does not always imply anatomical connectivity; it only implies that
@@ -87,44 +83,40 @@ corroboration, these jointly firing neurons may have a common input
 or be linked in a chain, rather than lie physically adjacent.
 Providing experimental evidence of predicted connectivity between
 pairs of neurons in the circuit is not in the scope of this project;
-however, we intend to use real calcium imaging and MEA data for our
+however, we intend to use real calcium imaging and multi-electrode array (MEA) data for our
 analysis, and expect to see results consistent with the neural
 connectivity literature.  Some measures of this consistency would
-be that each neuron will obey Dale’s law, i.e. they are either
-purely excitatory or inhibitory, and that the connectivity is sparse.
-With the simulated data, we will also be able to see how sensitive
+be that each neuron obeys Dale’s law, i.e. they are either
+purely excitatory or inhibitory, and that connectivity is sparse.
+With simulated data, we will also be able to see how sensitive
 the connectivity inference is to various parameter structures and
 decide whether these sensitivities or lack thereof are biologically
-reasonable. It is not yet clear how microcircuits code neural
-computations, nor how they might generalize across brain regions
-or individuals, but by uncovering the patterns of activity between
-neurons we begin to decode these computational processes.
-
+reasonable.
 
 Several strategies have already been employed to infer the functional
 connectivity of microcircuits from calcium imaging and MEA data
-(Cite the other 5 papers). Of special interest to us and our approach
+\citep{Gerwinn2010, takahashi2007, aguiar2009}. Of special interest to us and our approach
 are two recent Bayesian approaches. In \citep{patnaik2011}, 
 a pattern-growth algorithm is used to find repeated episodes of
 activity. These patterns define mutual information between neurons
 which they summarize in a dynamic Bayesian network. While their
 methodology presents a contribution to the study of Bayesian networks,
 one limitation of this work in inferring the connectivity of
-microcircuits is that it only discovers relationships of excitation.
-
-In Mishchencko et al., network activity is modelled in terms of a
-collection of coupled hidden Markov chains, with each chain
+microcircuits is that it only discovers relationships of excitation. In \citep{mishchencko2011}, network activity is modeled in terms of a collection of coupled hidden Markov chains, with each chain
 corresponding to a single neuron in the network and the coupling
 between the chains reflecting the network’s connectivity matrix.
 To make computation feasible they used a blockwise-Gibbs sampling
 method and took advantage of the parallel computing possibilities
-when implementing their expectation-maximization algorithm.
-
-Although the work to date has done much to address the problem of
+when implementing their expectation-maximization algorithm. Although the work to date has done much to address the problem of
 functional neural connectivity, there are still improvements to be
 made to current models. For example, current models do not address
-unobserved inputs to the system. Furthermore, it is not clear if
-the current models are the only approaches with merit.
+unobserved inputs to the system. By developing a new model, we can address these issues as well as explore potentially new
+ways of inferring functional connectivity on the cellular scale. 
+
+It is not yet clear how microcircuits code neural
+computations, nor how they might generalize across brain regions
+or individuals, but by uncovering the patterns of activity between
+neurons we begin to decode these computational processes.
 
 \section{Methods}
 TBD.
