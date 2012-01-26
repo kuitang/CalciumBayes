@@ -22,7 +22,7 @@
 \author{
 Shababo, B. \hspace{1cm} Stern-Asher, C.N. \hspace{1cm} Tang, K.\\
 Columbia University, New York, NY 10027, USA \\
-\texttt{bms2156@columbia.edu,conradsa@gmail.com,kt2384@columbia.edu}
+\texttt{\{bms2156,cs3022,kt2384\}@columbia.edu}
 %\texttt{pfau@neurotheory.columbia.edu} 
 %\texttt{\{bartlett,fwood\}@stat.columbia.edu} 
 }
@@ -49,7 +49,7 @@ Columbia University, New York, NY 10027, USA \\
 \begin{abstract}
 Our project aims to model the functional connectivity of neuronal
 microcircuits. On this scale, we are concerned with how the activity
-of each individual neuron relates to the other neurons in the
+of each individual neuron relates to other neurons in the
 population. Recent innovations, including the use of calcium indicator
 dyes or multi-electrode arrays (MEA), allow researchers to collect
 individual spiking activities of large groups of neighboring neurons,
@@ -76,17 +76,17 @@ functional connectivity \citep{KnowlesBarley2011, Jain2010, Ropireddy2011, Chian
 
 In this project, we will model the functional connectivity of
 microcircuits: how electrical activity in one neuron influences
-activities in other neurons. Importantly, functional connectivity
+activities in other neurons.  The observed data will be comprised of individual neuronal activity, from which we hope to uncover the pair-wise connectivity or synaptic weight parameters.  Other latent parameters that may also require optimization are firing rate, decay and peak of post synaptic potentials, refractory period, balance of excitation and inhibition, etc.  Importantly, functional connectivity
 does not always imply anatomical connectivity; it only implies that
 some set of neurons fire together in correlation.  Without anatomical
 corroboration, these jointly firing neurons may have a common input
-or be linked in a chain, rather than lie physically adjacent.
+or be linked in a chain, rather than have monosynaptic connection.
 Providing experimental evidence of predicted connectivity between
 pairs of neurons in the circuit is not in the scope of this project;
 however, we intend to use real calcium imaging and multi-electrode array (MEA) data for our
 analysis, and expect to see results consistent with the neural
 connectivity literature.  Some measures of this consistency would
-be that each neuron obeys Dale’s law, i.e. they are either
+be that each neuron obeys Dale’s law, \emph{i.e.} that they are either
 purely excitatory or inhibitory, and that connectivity is sparse.
 With simulated data, we will also be able to see how sensitive
 the connectivity inference is to various parameter structures and
@@ -114,7 +114,7 @@ unobserved inputs to the system. By developing a new model, we can address these
 ways of inferring functional connectivity on the cellular scale. 
 
 It is not yet clear how microcircuits code neural
-computations, nor how they might generalize across brain regions
+computations, nor how they might generalize across brain regions, varying behaviors and stimuli, 
 or individuals, but by uncovering the patterns of activity between
 neurons we begin to decode these computational processes.
 
@@ -124,7 +124,7 @@ TBD.
 TBD.
 
 \section{Conclusion}
-We will develop a model to infer a neural connectivity matrix given spike train data (either continuous measurements, such as fluorescence levels, or discrete spikes) that improves and builds on prior research efforts. As ground truth data is limited in this domain, we will primarily measure performance using the same simulation processes and metrics used in the source papers for our model.  Specifically, we expect our model to accurately retrieve the connectivity parameters used to generate the simulated data.  
+We will develop a model to infer a neural connectivity matrix given spike train data (either "continuous" measurements, such as a fluorescence or electrophysiology time series, or pre-processed discrete spike times) that improves and builds on prior research efforts. As ground truth data is limited in this domain, we will primarily measure performance using the same simulation processes and metrics used in the source papers for our model.  Specifically, we expect our model to accurately retrieve the connectivity parameters used to generate the simulated data.  
 
 Further, since our team has access to limited lab data of spike trains, we will also compare our model against existing models on real data and expect our model to outperform on real data as well.  A potential metric for performance in this regime may come from the few experiments done, where dozens of cells are voltage clamped simultaneously, and functional connections are accurately teased out through direct measurements of post synaptic currents.  Certain graphical features have been inferred about the entire microcircuit from these limited electrophysiological data, such as the existence of scale-free, small world networks with certain two, three, and four cell motifs over-represented as compared to a randomly connected network \citep{song2005,perin2011}.  So in comparison to other models we may expect to validate these graphical features in the analysis of real data.
 
