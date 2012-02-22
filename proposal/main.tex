@@ -132,7 +132,19 @@ We
 
 \subsection{Testing Method}
 
-TBD.
+The model as presented thus far only takes into account first-order interactions, that is, it only infers connectivity between two neurons over the course of one discrete time step. Given that the data only represents only a subset of the microcircuit, there are many inputs being ignored. We propose modeling these indirect inputs simply by creating and indirect input to each neuron at each time step which is a weighted sum of inputs from all neurons at each time step from $t-2$ to $t-S$, $S$ being the maximum number of time steps within which $n_j(t)$ can have an indirect influence on $n_i(t)$.
+
+These higher order interactions are incorporated into the summed input of neuron $n_i(t)$ by adding the term,
+
+
+\begin{equation}
+\label{new_term}
+\displaystyle\sum\limits_{s=2}^S\sum\limits_{j} \beta_{ijs}n_j(t-s\Delta)
+\end{equation}
+
+
+to the input function $J_i(t)$. Here, $s$ is the number of time steps back, $\Delta$ is the temporal resolution of the model, and $\beta_{ijs}$ is the weight of the indirect influence of $n_j(t)$ on $n_i$.
+
 \section{Experiments}
 TBD.
 
