@@ -20,7 +20,7 @@
 \title{Inferring Functional Connectivity of Neurons From Spiking Activity}
 
 \author{
-Shababo, B. \hspace{1cm} Stern-Asher, C.N. \hspace{1cm} Tang, K.\\
+Shababo, Ben \hspace{1cm} Stern-Asher, Conrad \hspace{1cm} Tang, Kui\\
 Columbia University, New York, NY 10027, USA \\
 \texttt{\{bms2156,cs3022,kt2384\}@columbia.edu}
 %\texttt{pfau@neurotheory.columbia.edu} 
@@ -74,9 +74,16 @@ millions of cells down to microcircuits of only a few cells. Further,
 some of these projects address structural connectivity and others
 functional connectivity \citep{KnowlesBarley2011, Jain2010, Ropireddy2011, Chiang2011, bhattacharya2006}.
 
+We aim to produce a generative model of neuron spiking
+
 In this project, we will model the functional connectivity of
 microcircuits: how electrical activity in one neuron influences
-activities in other neurons.  The observed data will be comprised of individual neuronal activity, from which we hope to uncover the pair-wise connectivity or synaptic weight parameters.  Other latent parameters that may also require optimization are firing rate, decay and peak of post synaptic potentials, refractory period, balance of excitation and inhibition, etc.  Importantly, functional connectivity
+activities in other neurons. We will infer a $ N \times N $
+connectivity matrix $ W $, where each entry $ (W)_ij $ scales
+
+
+
+The observed data will be comprised of individual neuronal activity, from which we hope to uncover the pair-wise connectivity or synaptic weight parameters.  Other latent parameters that may also require optimization are firing rate, decay and peak of post synaptic potentials, refractory period, balance of excitation and inhibition, etc.  Importantly, functional connectivity
 does not always imply anatomical connectivity; it only implies that
 some set of neurons fire together in correlation.  Without anatomical
 corroboration, these jointly firing neurons may have a common input
@@ -119,6 +126,12 @@ or individuals, but by uncovering the patterns of activity between
 neurons we begin to decode these computational processes.
 
 \section{Methods}
+
+\subsection{Formal Model}
+We 
+
+\subsection{Testing Method}
+
 TBD.
 \section{Experiments}
 TBD.
