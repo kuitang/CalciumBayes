@@ -128,11 +128,42 @@ neurons we begin to decode these computational processes.
 \section{Methods}
 
 \subsection{Formal Model}
-We 
+We extend and synthesize a parametric generative model proposed by
+\citep{mishchencko2011} of joint spike trains on $N$ neurons in
+discrete time, together with a method to infer the structure of
+dynamic bayesian networks proposed by \citep{patnaik2011}. Mischencko
+et al. propose a model to infer the connectivity matrix $W$, where
+each entry $w_{ij}$ encodes the influence of neuron $i$ on subsequent
+firing of neuron $j$, given the history of  directly from calcium
+flourescence data. Their model can be decomposed into one part
+inferring neural spike train data from flourescence imaging, and
+another part inferring $W$ from spike train data. We focus on the
+latter.
+
+Denote by $ n_i(t) $ whether neuron $i$ fired at time $t$. We observe
+fired neurons, so we set $n_i(t) = 1$ when we observe in the spike
+train that neuron $i$ fires at time $t$. We model $n_i(T)$ as a
+binary random variable with parameter $f(J_i(t))$, where
+\begin{equation}\label{J}  J_i(t) = b_i + I_i(t) + \sum_{j=1}^{N}
+w_{ij}h_{ij}(t) \end{equation} where $b_i$ is a baseline, $I_i(t)$
+accounts for indirect contributions to neuron $i$ from a fixed window of
+past timeslices (discussed below). The history term, $h_{ij}$, encodes
+the influence of neuron $i$ on neuron $j$ from one earlier timeslice.
+From \citep{mishchencko2011}, we model $h$ as an autoregressive function of
+$n_j(t)$: \begin{equation}\label{h} h_{ij}(t) = (1-\Delta/\tau_{ij}^h)h_{ij}(t-\Delta)
+  + n_j(t-\Delta)+\sigma_{ij}^h\sqrt{\Delta}\epsilon_{ij}^h(t) \end{equation}
+where $ \tau_{ij}^h $ is the decay time constant, $\sigma_{ij}^h$ is the
+standard deviation of the noise and $\epsilon_{ij}^h$ is a standard
+normal random variable representing noise.
+
+Following \citep{mishchencko2011}, we define $f$ to ensure that log likelihood of 
+spiking and correct scaling with respect to timeslice granularity: \begin{equation}
+\label{f} f(J) = P\left(n>0 | n \sim \text{Poiss}(e^J\Delta)\right) = 1 - \exp(-e^J\Delta) \end{equation}
 
 \subsection{Testing Method}
+We will test on spike trains of 87 PFC neurons that were simultaneously recorded during a single 40-minute behaving session.
 
-TBD.
+WRITE ABOUT SIMULATOR!
 \section{Experiments}
 TBD.
 
