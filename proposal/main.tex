@@ -139,11 +139,11 @@ In addition, we attempt to model the indirect inputs to $n_i$ by summing the inf
 
 \begin{equation}
 \label{new_term}
-I_i(t)=\displaystyle\sum\limits_{s=2}^S\sum\limits_{j} \beta_{ijs}n_j(t-s\Delta),
+I_i(t)=\displaystyle\sum\limits_{s=2}^S\sum\limits_{j} \beta_{ijs}n_j(t-s\Delta) + \eta_{is},
 \end{equation}
 
 
-to the input function $J_i(t)$. Here, $s$ is the number of time steps back and $\beta_{ijs}$ is the weight of the indirect influence of $n_j(t-s\Delta)$ on $n_i(t)$.
+to the input function $J_i(t)$. Here, $s$ is the number of time steps back and $\beta_{ijs}$ is the weight of the indirect influence of $n_j(t-s\Delta)$ on $n_i(t)$. The term $\eta_{is}$ represents the indirect influence from unknown sources, i.e. influences not mediated through any of the $N$ observed neurons, on $n_i(t)$  Along with inferring the direct connectivity matrix, $W$, we will also infer the three dimensional indirect connectivity matrix, $B$, and the $N\times S-2$ matrix of $\eta_{is}$ terms.
 
 \subsection{Testing Method}
 We will test on spike trains of 87 PFC neurons that were simultaneously recorded during a single 40-minute behaving session.
