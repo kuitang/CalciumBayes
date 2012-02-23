@@ -17,14 +17,14 @@
 \newcommand{\comment}[1]{}
 \DeclareMathOperator*{\argmax}{arg\,max}
 
-\title{Inferring Functional Connectivity of Neurons From Spiking Activity}
+\title{Inferring Direct and Indirect Functional Connectivity Between Neurons From Multiple Neural Spike Train Data}
 
 \author{
-Shababo, Ben \hspace{1cm} Stern-Asher, Conrad \hspace{1cm} Tang, Kui\\
+Ben Shababo \hspace{1cm}Kui Tang \hspace{1cm}Frank Wood\\
 Columbia University, New York, NY 10027, USA \\
-\texttt{\{bms2156,cs3022,kt2384\}@columbia.edu}
+\texttt{\{bms2156,kt2384\}@columbia.edu},
 %\texttt{pfau@neurotheory.columbia.edu} 
-%\texttt{\{bartlett,fwood\}@stat.columbia.edu} 
+\texttt{\{fwood\}@stat.columbia.edu} 
 }
 
 % The \author macro works with any number of authors. There are two commands
@@ -74,37 +74,20 @@ millions of cells down to microcircuits of only a few cells. Further,
 some of these projects address structural connectivity and others
 functional connectivity \citep{KnowlesBarley2011, Jain2010, Ropireddy2011, Chiang2011, bhattacharya2006}.
 
-We aim to produce a generative model of neuron spiking
+%We aim to produce a generative model of neuron spiking
 
-In this project, we will model the functional connectivity of
-microcircuits: how electrical activity in one neuron influences
-activities in other neurons. We will infer a $ N \times N $
-connectivity matrix $ W $, where each entry $ (W)_ij $ scales
-
-
-
-The observed data will be comprised of individual neuronal activity, from which we hope to uncover the pair-wise connectivity or synaptic weight parameters.  Other latent parameters that may also require optimization are firing rate, decay and peak of post synaptic potentials, refractory period, balance of excitation and inhibition, etc.  Importantly, functional connectivity
-does not always imply anatomical connectivity; it only implies that
+In this project, we will focus on the functional connectivity of
+microcircuits: how firing activity of one neuron influences the firing of other nearby neurons.
+Importantly, functional connectivity does not always imply anatomical connectivity; it only implies that
 some set of neurons fire together in correlation.  Without anatomical
 corroboration, these jointly firing neurons may have a common input
-or be linked in a chain, rather than have monosynaptic connection.
-Providing experimental evidence of predicted connectivity between
-pairs of neurons in the circuit is not in the scope of this project;
-however, we intend to use real calcium imaging and multi-electrode array (MEA) data for our
-analysis, and expect to see results consistent with the neural
-connectivity literature.  Some measures of this consistency would
-be that each neuron obeys Dale’s law, \emph{i.e.} that they are either
-purely excitatory or inhibitory, and that connectivity is sparse.
-With simulated data, we will also be able to see how sensitive
-the connectivity inference is to various parameter structures and
-decide whether these sensitivities or lack thereof are biologically
-reasonable.
+or be linked in a chain, rather than having monosynaptic connection.
 
 Several strategies have already been employed to infer the functional
 connectivity of microcircuits from calcium imaging and MEA data
 \citep{Gerwinn2010, takahashi2007, aguiar2009}. Of special interest to us and our approach
 are two recent Bayesian approaches. In \citep{patnaik2011}, 
-a pattern-growth algorithm is used to find repeated episodes of
+a pattern-growth algorithm is used to find frequent patterns of firing 
 activity. These patterns define mutual information between neurons
 which they summarize in a dynamic Bayesian network. While their
 methodology presents a contribution to the study of Bayesian networks,
@@ -114,68 +97,56 @@ corresponding to a single neuron in the network and the coupling
 between the chains reflecting the network’s connectivity matrix.
 To make computation feasible they used a blockwise-Gibbs sampling
 method and took advantage of the parallel computing possibilities
-when implementing their expectation-maximization algorithm. Although the work to date has done much to address the problem of
+when implementing their expectation-maximization algorithm. 
+
+Although the work to date has done much to address the problem of
 functional neural connectivity, there are still improvements to be
 made to current models. For example, current models do not address
-unobserved inputs to the system. By developing a new model, we can address these issues as well as explore potentially new
-ways of inferring functional connectivity on the cellular scale. 
-
-It is not yet clear how microcircuits code neural
-computations, nor how they might generalize across brain regions, varying behaviors and stimuli, 
-or individuals, but by uncovering the patterns of activity between
-neurons we begin to decode these computational processes.
+unobserved inputs to the system. In this paper, we attempt to account for these indirect influences on the observed neurons by extending the model of \citep{mishchencko2011} so that it captures functional weights between neurons over multiple time steps, effectively extending the model back in time. In this way, we can capture many of the more interesting higher order patterns found in \citep{patnaik2011}.  But also, by allowing both positive and negative values for these weights we can capture inhibitory influences on these larger time courses.
 
 \section{Methods}
 
 \subsection{Formal Model}
 We extend and synthesize a parametric generative model proposed by
 \citep{mishchencko2011} of joint spike trains on $N$ neurons in
-discrete time, together with a method to infer the structure of
-dynamic bayesian networks proposed by \citep{patnaik2011}. Mischencko
+discrete time. Mischencko
 et al. propose a model to infer the connectivity matrix $W$, where
-each entry $w_{ij}$ encodes the influence of neuron $i$ on subsequent
-firing of neuron $j$, given the history of  directly from calcium
+each entry $w_{ij}$ encodes the influence of neuron $i$ on the subsequent
+firing of neuron $j$, given the history of directly from calcium
 flourescence data. Their model can be decomposed into one part
 inferring neural spike train data from flourescence imaging, and
 another part inferring $W$ from spike train data. We focus on the
 latter.
 
 Denote by $ n_i(t) $ whether neuron $i$ fired at time $t$. We observe
-fired neurons, so we set $n_i(t) = 1$ when we observe in the spike
-train that neuron $i$ fires at time $t$. We model $n_i(T)$ as a
+the firing of each neuron, $n_i(t), i = 1,...,N$, at each discrete time step, such that $n_i(t) = 1$ when we observe a spike and $n_i(t) = 0$ when the neuron is not firing. We model $n_i(t)$ as a
 binary random variable with parameter $f(J_i(t))$, where
 \begin{equation}\label{J}  J_i(t) = b_i + I_i(t) + \sum_{j=1}^{N}
-w_{ij}h_{ij}(t) \end{equation} where $b_i$ is a baseline, $I_i(t)$
-accounts for indirect contributions to neuron $i$ from a fixed window of
-past timeslices (discussed below). The history term, $h_{ij}$, encodes
-the influence of neuron $i$ on neuron $j$ from one earlier timeslice.
-From \citep{mishchencko2011}, we model $h$ as an autoregressive function of
-$n_j(t)$: \begin{equation}\label{h} h_{ij}(t) = (1-\Delta/\tau_{ij}^h)h_{ij}(t-\Delta)
-  + n_j(t-\Delta)+\sigma_{ij}^h\sqrt{\Delta}\epsilon_{ij}^h(t) \end{equation}
+w_{ij}h_{ij}(t), \end{equation} where $b_i$ is a baseline and $I_i(t)$
+accounts for indirect influences on neuron $i$ from a fixed window of
+past time steps. The history term, $h_{ij}$, encodes
+the influence of neuron $j$ on neuron $i$ and is only dependent on firing of $j$ at time $t-\Delta$ where $\Delta$ is the size of each discrete time step.
+From \citep{mishchencko2011}, we model $h_{ij}(t)$ as an autoregressive function: \begin{equation}\label{h} h_{ij}(t) = (1-\Delta/\tau_{ij}^h)h_{ij}(t-\Delta)
+  + n_j(t-\Delta)+\sigma_{ij}^h\sqrt{\Delta}\epsilon_{ij}^h(t), \end{equation}
 where $ \tau_{ij}^h $ is the decay time constant, $\sigma_{ij}^h$ is the
 standard deviation of the noise and $\epsilon_{ij}^h$ is a standard
 normal random variable representing noise.
 
-Following \citep{mishchencko2011}, we define $f$ to ensure that log likelihood of 
-spiking and correct scaling with respect to timeslice granularity: \begin{equation}
-\label{f} f(J) = P\left(n>0 | n \sim \text{Poiss}(e^J\Delta)\right) = 1 - \exp(-e^J\Delta) \end{equation}
+Following \citep{mishchencko2011}, we define \begin{equation}
+\label{f} f(J) = P\left(n>0 | n \sim \text{Poiss}(e^J\Delta)\right) = 1 - \exp(-e^J\Delta). \end{equation}
 
-\subsection{Testing Method}
-We will test on spike trains of 87 PFC neurons that were simultaneously recorded during a single 40-minute behaving session.
-
-<<<<<<< HEAD
-The model as presented thus far only takes into account first-order interactions, that is, it only infers connectivity between two neurons over the course of one discrete time step. Given that the data only represents only a subset of the microcircuit, there are many inputs being ignored. We propose modeling these indirect inputs simply by creating and indirect input to each neuron at each time step which is a weighted sum of inputs from all neurons at each time step from $t-2$ to $t-S$, $S$ being the maximum number of time steps within which $n_j(t)$ can have an indirect influence on $n_i(t)$.
-
-These higher order interactions are incorporated into the summed input of neuron $n_i(t)$ by adding the term,
-
+In addition, we attempt to model the indirect inputs to $n_i$ by summing the influences from all neurons, $n_j(s), s=t-2\Delta,...,t-S\Delta$, where $S$ is the temporal limit on indirect influences. These higher order interactions are incorporated into the summed input to neuron $n_i(t)$ by adding the term,
 
 \begin{equation}
 \label{new_term}
-\displaystyle\sum\limits_{s=2}^S\sum\limits_{j} \beta_{ijs}n_j(t-s\Delta)
+I_i(t)=\displaystyle\sum\limits_{s=2}^S\sum\limits_{j} \beta_{ijs}n_j(t-s\Delta),
 \end{equation}
 
 
-to the input function $J_i(t)$. Here, $s$ is the number of time steps back, $\Delta$ is the temporal resolution of the model, and $\beta_{ijs}$ is the weight of the indirect influence of $n_j(t)$ on $n_i$.
+to the input function $J_i(t)$. Here, $s$ is the number of time steps back and $\beta_{ijs}$ is the weight of the indirect influence of $n_j(t-s\Delta)$ on $n_i(t)$.
+
+\subsection{Testing Method}
+We will test on spike trains of 87 PFC neurons that were simultaneously recorded during a single 40-minute behaving session.
 
 WRITE ABOUT SIMULATOR!
 \section{Experiments}
