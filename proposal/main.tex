@@ -20,9 +20,9 @@
 \title{Inferring Direct and Indirect Functional Connectivity Between Neurons From Multiple Neural Spike Train Data}
 
 \author{
-Ben Shababo \hspace{1cm}Kui Tang \hspace{1cm}Frank Wood\\
+Ben Shababo \hspace{1cm} Kui Tang \hspace{1 cm}Conrad Stern-Ascher \hspace{1cm}Frank Wood\\
 Columbia University, New York, NY 10027, USA \\
-\texttt{\{bms2156,kt2384\}@columbia.edu},
+\texttt{\{bms2156,kt2384,cs3022\}@columbia.edu},
 %\texttt{pfau@neurotheory.columbia.edu} 
 \texttt{\{fwood\}@stat.columbia.edu} 
 }
@@ -64,6 +64,8 @@ blocks of neural computation.
 \section{Introduction}
 \label{sec:introduction}
 
+\subsection{Problem Description}
+
 As we learn more and more about the workings of the neuron and of
 specialized brain regions, the question increasingly becomes, how
 do these pieces sum to a whole? How do the patterns of connectivity
@@ -82,10 +84,7 @@ Importantly, functional connectivity does not always imply anatomical connectivi
 some set of neurons fire together in correlation.  These jointly firing neurons may have a common input
 or be linked in a chain, rather than having monosynaptic connection.
 
-
-\section{Methods}
-
-\subsection{Problem Description}
+\subsection{Background}
 
 Several strategies have already been employed to infer the functional
 connectivity of microcircuits from calcium imaging and MEA data
@@ -103,10 +102,14 @@ To make computation feasible they used a blockwise-Gibbs sampling
 method and took advantage of the parallel computing possibilities
 when implementing their expectation-maximization algorithm. 
 
+\subsection{Unobserved Neurons as Indirect Inputs}
+
 Although the work to date has done much to address the problem of
 functional neural connectivity, there are still improvements to be
 made to current models. For example, current models do not address
 unobserved inputs to the system. In this paper, we attempt to account for these indirect influences on the observed neurons by extending the model of \citep{mishchencko2011} so that it captures functional weights between neurons over multiple time steps, effectively extending the model back in time. In this way, we can capture many of the more interesting higher order patterns found in \citep{patnaik2011}.  But also, by allowing both positive and negative values for these weights we can capture inhibitory influences on these larger time courses.
+
+\section{Methods}
 
 \subsection{Formal Model}
 We extend and synthesize a parametric generative model proposed by
@@ -147,11 +150,15 @@ I_i(t)=\displaystyle\sum\limits_{s=2}^S\sum\limits_{j} \beta_{ijs}n_j(t-s\Delta)
 
 to the input function $J_i(t)$. Here, $s$ is the number of time steps back and $\beta_{ijs}$ is the weight of the indirect influence of $n_j(t-s\Delta)$ on $n_i(t)$. The term $\eta_{is}$ represents the indirect influence from unknown sources, i.e. influences not mediated through any of the $N$ observed neurons, on $n_i(t)$  Along with inferring the direct connectivity matrix, $W$, we will also infer the three dimensional indirect connectivity matrix, $B$, and the $N\times S-2$ matrix of $\eta_{is}$ terms.
 
+\subsection{Priors}
+
+In \citep{mishchencko2011}, they use two priors on the connectivity matrix, $W$, a sparseness prior and a prior which imposes "Dale's Law" which states that a neuron can only exert either an excitatory or an inhibitory influence on postsynaptic neurons. We will include the spareness prior in our model; however, given that recent research has shown that neurotransmitter co-release is more common that once anticipated, we will reexamine the effect of imposing Dale's Law on our model. We will also investigate imposing priors on the indirect influences. One possibility for getting a prior on excitatory indirect influences would be based on finding frequent episodes as in \citep{patnaik2011}.
+
 \section{Experiments}
 
 \subsection{Data Source \& Simulation}
 
-We will test our model on both actual multiple neuronal spike train data as well as on simulated spike trains. The actual data have been provided by the Buszaki lab and was recorded simultaneously from 87 prefrontal cortex neurons of a behaving rat over the course of roughly 40 minutes. We also use simulated neuronal spike train data generated using standard methods.
+We will test our model on both actual multiple neuronal spike train data as well as on simulated spike trains. The actual data have been provided by the Buszaki lab and was recorded simultaneously from 87 prefrontal cortex neurons of a behaving rat over the course of roughly 40 minutes. We also use simulated neuronal spike train data generated using equations (1)-(3) in \citep{mishchencko2011} which are similar to our equations \eqref{J}, \eqref{h}, and \eqref{f} except that instead of the term $I_i(t)$, they have a term representing some linearly filtered external stimulus, $k_iS^{ext}(t)$.
 
 \subsection{Testing Method}
 
