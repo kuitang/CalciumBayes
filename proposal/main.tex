@@ -79,9 +79,13 @@ functional connectivity \citep{KnowlesBarley2011, Jain2010, Ropireddy2011, Chian
 In this project, we will focus on the functional connectivity of
 microcircuits: how firing activity of one neuron influences the firing of other nearby neurons.
 Importantly, functional connectivity does not always imply anatomical connectivity; it only implies that
-some set of neurons fire together in correlation.  Without anatomical
-corroboration, these jointly firing neurons may have a common input
+some set of neurons fire together in correlation.  These jointly firing neurons may have a common input
 or be linked in a chain, rather than having monosynaptic connection.
+
+
+\section{Methods}
+
+\subsection{Problem Description}
 
 Several strategies have already been employed to infer the functional
 connectivity of microcircuits from calcium imaging and MEA data
@@ -103,8 +107,6 @@ Although the work to date has done much to address the problem of
 functional neural connectivity, there are still improvements to be
 made to current models. For example, current models do not address
 unobserved inputs to the system. In this paper, we attempt to account for these indirect influences on the observed neurons by extending the model of \citep{mishchencko2011} so that it captures functional weights between neurons over multiple time steps, effectively extending the model back in time. In this way, we can capture many of the more interesting higher order patterns found in \citep{patnaik2011}.  But also, by allowing both positive and negative values for these weights we can capture inhibitory influences on these larger time courses.
-
-\section{Methods}
 
 \subsection{Formal Model}
 We extend and synthesize a parametric generative model proposed by
@@ -145,12 +147,17 @@ I_i(t)=\displaystyle\sum\limits_{s=2}^S\sum\limits_{j} \beta_{ijs}n_j(t-s\Delta)
 
 to the input function $J_i(t)$. Here, $s$ is the number of time steps back and $\beta_{ijs}$ is the weight of the indirect influence of $n_j(t-s\Delta)$ on $n_i(t)$. The term $\eta_{is}$ represents the indirect influence from unknown sources, i.e. influences not mediated through any of the $N$ observed neurons, on $n_i(t)$  Along with inferring the direct connectivity matrix, $W$, we will also infer the three dimensional indirect connectivity matrix, $B$, and the $N\times S-2$ matrix of $\eta_{is}$ terms.
 
-\subsection{Testing Method}
-We will test on spike trains of 87 PFC neurons that were simultaneously recorded during a single 40-minute behaving session.
-
-WRITE ABOUT SIMULATOR!
 \section{Experiments}
-TBD.
+
+\subsection{Data Source \& Simulation}
+
+We will test our model on both actual multiple neuronal spike train data as well as on simulated spike trains. The actual data have been provided by the Buszaki lab and was recorded simultaneously from 87 prefrontal cortex neurons of a behaving rat over the course of roughly 40 minutes. We also use simulated neuronal spike train data generated using standard methods.
+
+\subsection{Testing Method}
+
+We will ensure the quality of our model and inference techniques on both types of data. As there is not ground-truth for the connection weights for actual data, we will be looking for weight values that create networks of connectivity that resemble those found in the graphical analysis of known neuronal circuits.
+
+In the case of simulated data, we have an interesting opportunity to test the quality of the indirect component of our model. We can simulate a large collection neurons and only use a subset as the observed neurons in our model. We can then compare our inferred indirect weights with the known direct weights of the simulated data.
 
 \section{Conclusion}
 We will develop a model to infer a neural connectivity matrix given spike train data (either "continuous" measurements, such as a fluorescence or electrophysiology time series, or pre-processed discrete spike times) that improves and builds on prior research efforts. As ground truth data is limited in this domain, we will primarily measure performance using the same simulation processes and metrics used in the source papers for our model.  Specifically, we expect our model to accurately retrieve the connectivity parameters used to generate the simulated data.  
