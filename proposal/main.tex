@@ -112,8 +112,8 @@ discrete time. Mischencko
 et al. propose a model to infer the connectivity matrix $W$, where
 each entry $w_{ij}$ encodes the influence of neuron $i$ on the subsequent
 firing of neuron $j$, given the history of directly from calcium
-flourescence data. Their model can be decomposed into one part
-inferring neural spike train data from flourescence imaging, and
+florescence data. Their model can be decomposed into one part
+inferring neural spike train data from florescence imaging, and
 another part inferring $W$ from spike train data. We focus on the
 latter.
 
@@ -146,24 +146,26 @@ to the input function $J_i(t)$. Here, $s$ is the number of time steps back and $
 
 \subsection{Priors}
 
-In \citep{mishchencko2011}, they use two priors on the connectivity matrix, $W$, a sparseness prior and a prior which imposes "Dale's Law" which states that a neuron can only exert either an excitatory or an inhibitory influence on postsynaptic neurons. We will include the spareness prior in our model; however, given that recent research has shown that neurotransmitter co-release is more common that once anticipated, we will reexamine the effect of imposing Dale's Law on our model. We will also investigate imposing priors on the indirect influences. One possibility for getting a prior on excitatory indirect influences would be based on finding frequent episodes as in \citep{patnaik2011}.
+In \citep{mishchencko2011}, they use two priors on the connectivity matrix, $W$, a sparseness prior and a prior which imposes "Dale's Law" which states that a neuron can only exert either an excitatory or an inhibitory influence on postsynaptic neurons. We will include the sparseness prior in our model; however, given that recent research has shown that neurotransmitter co-release is more common that once anticipated, we will reexamine the effect of imposing Dale's Law on our model. We will also investigate imposing priors on the indirect influences. One possibility for getting a prior on excitatory indirect influences would be based on finding frequent episodes as in \citep{patnaik2011}.
 
 \section{Experiments}
 
 \subsection{Data Source \& Simulation}
 
-We will test our model on both actual multiple neuronal spike train data as well as on simulated spike trains. The actual data have been provided by the Buszaki lab and was recorded simultaneously from 87 prefrontal cortex neurons of a behaving rat over the course of roughly 40 minutes. We also use simulated neuronal spike train data generated using equations (1)-(3) in \citep{mishchencko2011} which are similar to our equations \eqref{J}, \eqref{h}, and \eqref{f} except that instead of the term $I_i(t)$, they have a term representing some linearly filtered external stimulus, $k_iS^{ext}(t)$.
+We will test our model on both actual multiple neuronal spike train data as well as on simulated spike trains. The actual data have been provided by the Buszaki lab and was recorded simultaneously from 87 prefrontal cortex neurons of a behaving rat over the course of roughly 40 minutes. This data has been pre-processed so that we begin with the straightforward spike trains which are equivalent to $n_i(t)$.
+
+We also use simulated neuronal spike train data generated using equations (1)-(3) in \citep{mishchencko2011} which are similar to our equations \eqref{J}, \eqref{h}, and \eqref{f} except that instead of the term $I_i(t)$, they have a term representing some linearly filtered external stimulus, $k_iS^{ext}(t)$.
 
 \subsection{Testing Method}
 
-We will ensure the quality of our model and inference techniques on both types of data. As there is not ground-truth for the connection weights for actual data, we will be looking for weight values that create networks of connectivity that resemble those found in the graphical analysis of known neuronal circuits.
+We will ensure the quality of our model and inference techniques on both types of data. As there is not ground-truth for the connection weights for actual data, we will be looking for weight values that reveal network motifs that resemble those found in the graphical analysis of known neuronal circuits such as the scale-free, small world networks with certain two, three, and four cell motifs \citep{song2005,perin2011}.
 
 In the case of simulated data, we have an interesting opportunity to test the quality of the indirect component of our model. We can simulate a large collection neurons and only use a subset as the observed neurons in our model. We can then compare our inferred indirect weights with the known direct weights of the simulated data.
 
-\section{Conclusion}
-We will develop a model to infer a neural connectivity matrix given spike train data (either "continuous" measurements, such as a fluorescence or electrophysiology time series, or pre-processed discrete spike times) that improves and builds on prior research efforts. As ground truth data is limited in this domain, we will primarily measure performance using the same simulation processes and metrics used in the source papers for our model.  Specifically, we expect our model to accurately retrieve the connectivity parameters used to generate the simulated data.  
+\section{Expected Conclusions \& Results}
+We propose to develop and test a model for inferring the direct and indirect functional connectivity of a neural microcircuit given discrete multiple neuronal spike train data. As ground truth data is limited in this domain, we will primarily measure performance using the same simulation processes and metrics used in the source papers for our model.  Specifically, we expect our model to accurately retrieve the connectivity parameters used to generate the simulated data. However, we do go a step further by comparing our inferred parameters for indirect influences on the observed neurons to known chains of direct connectivity which pass through unobserved neurons.
 
-Further, since our team has access to limited lab data of spike trains, we will also compare our model against existing models on real data and expect our model to outperform on real data as well.  A potential metric for performance in this regime may come from the few experiments done, where dozens of cells are voltage clamped simultaneously, and functional connections are accurately teased out through direct measurements of post synaptic currents.  Certain graphical features have been inferred about the entire microcircuit from these limited electrophysiological data, such as the existence of scale-free, small world networks with certain two, three, and four cell motifs over-represented as compared to a randomly connected network \citep{song2005,perin2011}.  So in comparison to other models we may expect to validate these graphical features in the analysis of real data.
+Further, since we have access to actual lab spike train data, we will also compare our model against existing models on real data.  A potential metric for performance in this regime may come from the few experiments done, where dozens of cells are voltage clamped simultaneously, and functional connections are accurately teased out through direct measurements of post synaptic currents.  Also, we may expect to validate the existence of graphical features commonly associated with neural circuitry.
 
 \begin{small}
 \bibliographystyle{plainnat}
