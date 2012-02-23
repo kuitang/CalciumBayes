@@ -49,14 +49,8 @@ Columbia University, New York, NY 10027, USA \\
 \begin{abstract}
 Our project aims to model the functional connectivity of neuronal
 microcircuits. On this scale, we are concerned with how the activity
-of each individual neuron relates to other neurons in the
-population. Recent innovations, including the use of calcium indicator
-dyes or multi-electrode arrays (MEA), allow researchers to collect
-individual spiking activities of large groups of neighboring neurons,
-supplying the data to address the fundamental problem of connectivity.
-We will develop a model to infer a neural connectivity matrix given
-spike train data that improves and builds on prior research efforts.
-With a better understanding of the functional patterns of neural
+of each individual neuron relates to other nearby neurons in the
+population. Though several models and methods have been implemented to infer neural microcircuit connectivity, these fail to capture the unobserved influences to the microcircuit. In this paper, we address these hidden influences on the microcircuit by developing a model which takes into account functional connectivity between observed neurons over more than one time step as well as inputs to each neuron which are unmediated by the observed neurons. We then test this model by simulating a large population of neurons, but only observing a subpopulation which allows us to compare our inferred indirect connectivity with the known direct connectivity of the total population. With a better understanding of the functional patterns of neural
 activity at the cellular level, we can begin to decode the building
 blocks of neural computation.
 \end{abstract}
@@ -144,7 +138,7 @@ In addition, we attempt to model the indirect inputs to $n_i$ by summing the inf
 
 \begin{equation}
 \label{new_term}
-I_i(t)=\displaystyle\sum\limits_{s=2}^S\sum\limits_{j} \beta_{ijs}n_j(t-s\Delta) + \eta_{is},
+I_i(t)=\displaystyle\sum\limits_{s=2}^S\sum\limits_{j=1}^N \beta_{ijs}n_j(t-s\Delta) + \eta_{is},
 \end{equation}
 
 
