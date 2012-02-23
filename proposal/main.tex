@@ -47,10 +47,10 @@ Columbia University, New York, NY 10027, USA \\
 \maketitle
 
 \begin{abstract}
-Our project aims to model the functional connectivity of neuronal
+Our project aims to model the functional connectivity of neural
 microcircuits. On this scale, we are concerned with how the activity
 of each individual neuron relates to other nearby neurons in the
-population. Though several models and methods have been implemented to infer neural microcircuit connectivity, these fail to capture the unobserved influences to the microcircuit. In this paper, we address these hidden influences on the microcircuit by developing a model which takes into account functional connectivity between observed neurons over more than one time step as well as inputs to each neuron which are unmediated by the observed neurons. We then test this model by simulating a large population of neurons, but only observing a subpopulation which allows us to compare our inferred indirect connectivity with the known direct connectivity of the total population. With a better understanding of the functional patterns of neural
+population. Though several models and methods have been implemented to infer neural microcircuit connectivity, these fail to capture unobserved influences on the microcircuit. In this paper, we address these hidden influences on the microcircuit by developing a model which takes into account functional connectivity between observed neurons over more than one time step as well as inputs to each neuron which are unmediated by the observed neurons. We then test this model by simulating a large population of neurons, but only observing a subpopulation which allows us to compare our inferred indirect connectivity with the known direct connectivity of the total population. With a better understanding of the functional patterns of neural
 activity at the cellular level, we can begin to decode the building
 blocks of neural computation.
 \end{abstract}
@@ -101,7 +101,7 @@ when implementing their expectation-maximization algorithm.
 Although the work to date has done much to address the problem of
 functional neural connectivity, there are still improvements to be
 made to current models. For example, current models do not address
-unobserved inputs to the system. In this paper, we attempt to account for these indirect influences on the observed neurons by extending the model of \citep{mishchencko2011} so that it captures functional weights between neurons over multiple time steps, effectively extending the model back in time. In this way, we can capture many of the more interesting higher order patterns found in \citep{patnaik2011}.  But also, by allowing both positive and negative values for these weights we can capture inhibitory influences on these larger time courses.
+unobserved inputs to the system. In this paper, we attempt to account for these indirect influences on the observed neurons by extending the model of \citep{mishchencko2011} so that it captures functional weights between neurons over multiple time steps, effectively extending the model back in time. In this way, we can capture many of the more interesting higher order patterns found in \citep{patnaik2011}.  But also, by allowing both positive and negative values for these weights we can capture excitatory and inhibitory influences on these larger time courses.
 
 \section{Methods}
 
@@ -110,21 +110,21 @@ We extend and synthesize a parametric generative model proposed by
 \citep{mishchencko2011} of joint spike trains on $N$ neurons in
 discrete time. Mischencko
 et al. propose a model to infer the connectivity matrix $W$, where
-each entry $w_{ij}$ encodes the influence of neuron $i$ on the subsequent
-firing of neuron $j$, given the history of directly from calcium
+each entry $w_{ij}$ encodes the influence of neuron $j$ on the subsequent
+firing of neuron $i$, given the history of directly from calcium
 florescence data. Their model can be decomposed into one part
 inferring neural spike train data from florescence imaging, and
 another part inferring $W$ from spike train data. We focus on the
 latter.
 
 Denote by $ n_i(t) $ whether neuron $i$ fired at time $t$. We observe
-the firing of each neuron, $n_i(t), i = 1,...,N$, at each discrete time step, such that $n_i(t) = 1$ when we observe a spike and $n_i(t) = 0$ when the neuron is not firing. We model $n_i(t)$ as a
+the firing of each neuron, $n_i(t), i = 1,...,N$, at each discrete time step, such that $n_i(t) = 1$ when we observe a spike and $n_i(t) = 0$ when the neuron is silent. We model $n_i(t)$ as a
 binary random variable with parameter $f(J_i(t))$, where
 \begin{equation}\label{J}  J_i(t) = b_i + I_i(t) + \sum_{j=1}^{N}
 w_{ij}h_{ij}(t), \end{equation} where $b_i$ is a baseline and $I_i(t)$
 accounts for indirect influences on neuron $i$ from a fixed window of
 past time steps. The history term, $h_{ij}$, encodes
-the influence of neuron $j$ on neuron $i$ and is only dependent on firing of $j$ at time $t-\Delta$ where $\Delta$ is the size of each discrete time step.
+the influence of neuron $j$ on neuron $i$ and is only dependent on the firing of $j$ at time $t-\Delta$ where $\Delta$ is the size of each discrete time step.
 From \citep{mishchencko2011}, we model $h_{ij}(t)$ as an autoregressive function: \begin{equation}\label{h} h_{ij}(t) = (1-\Delta/\tau_{ij}^h)h_{ij}(t-\Delta)
   + n_j(t-\Delta)+\sigma_{ij}^h\sqrt{\Delta}\epsilon_{ij}^h(t), \end{equation}
 where $ \tau_{ij}^h $ is the decay time constant, $\sigma_{ij}^h$ is the
@@ -134,27 +134,27 @@ normal random variable representing noise.
 Following \citep{mishchencko2011}, we define \begin{equation}
 \label{f} f(J) = P\left(n>0 | n \sim \text{Poiss}(e^J\Delta)\right) = 1 - \exp(-e^J\Delta). \end{equation}
 
-In addition, we attempt to model the indirect inputs to $n_i$ by summing the influences from all neurons, $n_j(s), s=t-2\Delta,...,t-S\Delta$, where $S$ is the temporal limit on indirect influences. These higher order interactions are incorporated into the summed input to neuron $n_i(t)$ by adding the term,
+In addition, we attempt to model the indirect inputs to $n_i$ by summing the influences from all neurons, $n_j(t-s\Delta), s=2,...,S$, where $S$ is the temporal limit on indirect influences. These higher order interactions are incorporated into the summed input to neuron $n_i(t)$ by adding the term,
 
 \begin{equation}
 \label{new_term}
-I_i(t)=\displaystyle\sum\limits_{s=2}^S\sum\limits_{j=1}^N \beta_{ijs}n_j(t-s\Delta) + \eta_{is},
+I_i(t)=\displaystyle\sum\limits_{s=2}^S\sum\limits_{j=1}^N \beta_{ijs}n_j(t-s\Delta) + \lambda_{is},
 \end{equation}
 
 
-to the input function $J_i(t)$. Here, $s$ is the number of time steps back and $\beta_{ijs}$ is the weight of the indirect influence of $n_j(t-s\Delta)$ on $n_i(t)$. The term $\eta_{is}$ represents the indirect influence from unknown sources, i.e. influences not mediated through any of the $N$ observed neurons, on $n_i(t)$  Along with inferring the direct connectivity matrix, $W$, we will also infer the three dimensional indirect connectivity matrix, $B$, and the $N\times S-2$ matrix of $\eta_{is}$ terms.
+to the input function $J_i(t)$. Here, $s$ is the number of time steps back and $\beta_{ijs}$ is the weight of the indirect influence of $n_j(t-s\Delta)$ on $n_i(t)$. The term $\lambda_{is}$ represents the indirect influence from unknown sources, i.e., influences not mediated through any of the $N$ observed neurons, on $n_i(t)$.  Along with inferring the direct connectivity matrix, $W$, we will also infer the three dimensional indirect connectivity matrix, $B$, and the $N\times S-2$ matrix of $\lambda_{is}$ terms.
 
 \subsection{Priors}
 
-In \citep{mishchencko2011}, they use two priors on the connectivity matrix, $W$, a sparseness prior and a prior which imposes "Dale's Law" which states that a neuron can only exert either an excitatory or an inhibitory influence on postsynaptic neurons. We will include the sparseness prior in our model; however, given that recent research has shown that neurotransmitter co-release is more common that once anticipated, we will reexamine the effect of imposing Dale's Law on our model. We will also investigate imposing priors on the indirect influences. One possibility for getting a prior on excitatory indirect influences would be based on finding frequent episodes as in \citep{patnaik2011}.
+In \citep{mishchencko2011}, they use two priors on the connectivity matrix, $W$, a sparseness prior and a prior which imposes "Dale's Law" which states that a neuron can only exert either an excitatory or an inhibitory influence on postsynaptic neurons. We will include the sparseness prior in our model; however, given that recent research has shown that neurotransmitter co-release is more common that once anticipated, we will reexamine the effect of imposing Dale's Law on our model. We will also investigate imposing priors on the indirect influences. One possibility for a prior on excitatory indirect influences would be based on finding frequent episodes as in \citep{patnaik2011}.
 
 \section{Experiments}
 
 \subsection{Data Source \& Simulation}
 
-We will test our model on both actual multiple neuronal spike train data as well as on simulated spike trains. The actual data have been provided by the Buszaki lab and was recorded simultaneously from 87 prefrontal cortex neurons of a behaving rat over the course of roughly 40 minutes. This data has been pre-processed so that we begin with the straightforward spike trains which are equivalent to $n_i(t)$.
+We will test our model on actual multiple neuronal spike train data as well as on simulated spike trains. The actual data have been provided by the Buszaki Lab and was recorded simultaneously from 87 prefrontal cortex neurons of a behaving rat over the course of roughly 40 minutes. This data has been pre-processed so that we begin with the spike trains which are equivalent to the values of $n_i(t)$.
 
-We also use simulated neuronal spike train data generated using equations (1)-(3) in \citep{mishchencko2011} which are similar to our equations \eqref{J}, \eqref{h}, and \eqref{f} except that instead of the term $I_i(t)$, they have a term representing some linearly filtered external stimulus, $k_iS^{ext}(t)$.
+We also use simulated neuronal spike train data generated using equations (1)-(3) in \citep{mishchencko2011} which are similar to our equations \eqref{J}, \eqref{h}, and \eqref{f} except that instead of the term $I_i(t)$, they have a term representing some linearly filtered external stimulus, $k_i \cdot S^{ext}(t)$.
 
 \subsection{Testing Method}
 
@@ -163,9 +163,9 @@ We will ensure the quality of our model and inference techniques on both types o
 In the case of simulated data, we have an interesting opportunity to test the quality of the indirect component of our model. We can simulate a large collection neurons and only use a subset as the observed neurons in our model. We can then compare our inferred indirect weights with the known direct weights of the simulated data.
 
 \section{Expected Conclusions \& Results}
-We propose to develop and test a model for inferring the direct and indirect functional connectivity of a neural microcircuit given discrete multiple neuronal spike train data. As ground truth data is limited in this domain, we will primarily measure performance using the same simulation processes and metrics used in the source papers for our model.  Specifically, we expect our model to accurately retrieve the connectivity parameters used to generate the simulated data. However, we do go a step further by comparing our inferred parameters for indirect influences on the observed neurons to known chains of direct connectivity which pass through unobserved neurons.
+We propose to develop and test a model for inferring the direct and indirect functional connectivity of a neural microcircuit given discrete multiple neuronal spike train data. As ground truth data is limited in this domain, we will primarily measure performance using the same simulation processes and metrics used in the source papers for our model.  Specifically, we expect our model to accurately retrieve the connectivity parameters used to generate the simulated data. We go a step further by comparing our inferred parameters for indirect influences on the observed neurons to known chains of direct connectivity which pass through unobserved neurons.
 
-Further, since we have access to actual lab spike train data, we will also compare our model against existing models on real data.  A potential metric for performance in this regime may come from the few experiments done, where dozens of cells are voltage clamped simultaneously, and functional connections are accurately teased out through direct measurements of post synaptic currents.  Also, we may expect to validate the existence of graphical features commonly associated with neural circuitry.
+Further, since we have access to actual lab spike train data, we will also compare our model against existing models on real data.  A potential metric for performance in this regime may come from the few experiments done, where dozens of cells are voltage clamped simultaneously, and functional connections are accurately teased out through direct measurements of post synaptic currents.  Also, we expect to validate the existence of graphical features commonly associated with neural circuitry.
 
 \begin{small}
 \bibliographystyle{plainnat}
