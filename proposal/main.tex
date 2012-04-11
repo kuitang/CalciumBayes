@@ -20,9 +20,9 @@
 \title{Inferring Direct and Indirect Functional Connectivity Between Neurons From Multiple Neural Spike Train Data}
 
 \author{
-Ben Shababo \hspace{1cm} Kui Tang \hspace{1 cm}Conrad Stern-Ascher \hspace{1cm}Frank Wood\\
+Ben Shababo \hspace{1cm} Kui Tang \hspace{1 cm}Frank Wood\\
 Columbia University, New York, NY 10027, USA \\
-\texttt{\{bms2156,kt2384,cs3022\}@columbia.edu},
+\texttt{\{bms2156,kt2384\}@columbia.edu},
 %\texttt{pfau@neurotheory.columbia.edu} 
 \texttt{\{fwood\}@stat.columbia.edu} 
 }
@@ -119,7 +119,7 @@ latter.
 
 Denote by $ n_i(t) $ whether neuron $i$ fired at time $t$. We observe
 the firing of each neuron, $n_i(t), i = 1,...,N$, at each discrete time step, such that $n_i(t) = 1$ when we observe a spike and $n_i(t) = 0$ when the neuron is silent. We model $n_i(t)$ as a
-binary random variable with parameter $f(J_i(t))$, where
+Bernoulli random variable with parameter $f(J_i(t))$, where
 \begin{equation}\label{J}  J_i(t) = b_i + I_i(t) + \sum_{j=1}^{N}
 w_{ij}h_{ij}(t), \end{equation} where $b_i$ is a baseline and $I_i(t)$
 accounts for indirect influences on neuron $i$ from a fixed window of
@@ -132,7 +132,9 @@ standard deviation of the noise and $\epsilon_{ij}^h$ is a standard
 normal random variable representing noise.
 
 Following \citep{mishchencko2011}, we define \begin{equation}
-\label{f} f(J) = P\left(n>0 | n \sim \text{Poiss}(e^J\Delta)\right) = 1 - \exp(-e^J\Delta). \end{equation}
+\label{f} f(J) = P\left(n>0 | n \sim \text{Poiss}(e^J\Delta)\right) = 1 - \exp(-e^J\Delta), \end{equation}
+
+which completes the setup for the generalized linear model. 
 
 In addition, we attempt to model the indirect inputs to $n_i$ by summing the influences from all neurons, $n_j(t-s\Delta), s=2,...,S$, where $S$ is the temporal limit on indirect influences. These higher order interactions are incorporated into the summed input to neuron $n_i(t)$ by adding the term,
 
