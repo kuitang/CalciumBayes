@@ -1,4 +1,4 @@
-function [ Q ] = e_step_smc( i, M, tau, delta, sigma, beta, lambda, b, w, data )
+function [ r h ] = e_step_smc( i, M, tau, delta, sigma, beta, lambda, b, w, data )
 %e_step_smc Perform the sampling SMC E-step for one neuron
 %   i - which neuron (scalar)
 %   M - number of particles (scalar)
@@ -10,7 +10,9 @@ function [ Q ] = e_step_smc( i, M, tau, delta, sigma, beta, lambda, b, w, data )
 %   b - baseline rates (1 x N)
 %   w - connectivity matrix (N x N)
 %   data - spike trains (N x T sparse)
-% data(n,t) = 1 <=> neuron n fired at time t
+% 
+%   r - marginal sample weights (T x M x M)
+%   h - samples (N x T x M)
 
 [x_ S]  = size(lambda);
 [N T] = size(data);
