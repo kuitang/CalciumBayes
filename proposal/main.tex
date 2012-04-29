@@ -120,7 +120,7 @@ latter.
 Denote by $ n_i(t) $ whether neuron $i$ fired at time $t$. We observe
 the firing of each neuron, $n_i(t), i = 1,...,N$, at each discrete time step, such that $n_i(t) = 1$ when we observe a spike and $n_i(t) = 0$ when the neuron is silent. We model $n_i(t)$ as a
 Bernoulli random variable with parameter $f(J_i(t))$, where
-\begin{equation}\label{J}  J_i(t) = b_i + I_i(t) + \sum_{j=1}^{N}
+\begin{equation}\label{J}J_i(t) = b_i + I_i(t) + \sum_{j=1}^{N}
 w_{ij}h_{ij}(t), \end{equation} where $b_i$ is a baseline and $I_i(t)$
 accounts for indirect influences on neuron $i$ from a fixed window of
 past time steps. The history term, $h_{ij}$, encodes

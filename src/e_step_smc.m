@@ -31,7 +31,7 @@ h(:,1,:) = normrnd(0, sd, N, M);
 
 % Now draw samples using modified Equation (11) in [Mischenko11]
 lastspike = -S;
-for t = 2 : T
+for t = 2 : T %should we just start this at S+1??
     % Sequential importance resampling    
     for m = 1 : M
         % Draw from the one-step-ahead proposal
