@@ -43,7 +43,7 @@ for t = 2 : T %should we just start this at S+1??
         % Compute J
         I = 0;
         if t - S > 0
-            for s = 1 : S
+            for s = 2 : S
                 I = I + beta(i,:,s) * data(:,t-1) + lambda(i,s);
             end
         end        
