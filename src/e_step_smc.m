@@ -1,4 +1,4 @@
-function [ r h ] = e_step_smc( i, M, tau, delta, sigma, beta, lambda, b, w, data )
+function [ pb h ] = e_step_smc( i, M, tau, delta, sigma, beta, lambda, b, w, data )
 %e_step_smc Perform the sampling SMC E-step for one neuron
 %   i - which neuron (scalar)
 %   M - number of particles (scalar)
@@ -11,15 +11,15 @@ function [ r h ] = e_step_smc( i, M, tau, delta, sigma, beta, lambda, b, w, data
 %   w - connectivity matrix (N x N)
 %   data - spike trains (N x T sparse)
 % 
-%   r - marginal sample weights (T x M x M)
+%   pb - backward sample weights (T x M)
 %   h - samples (N x T x M)
 
-[x_ S]  = size(lambda);
-[N T] = size(data);
+[~, S]  = size(lambda);
+[N, T] = size(data);
 
 sd = sigma*sqrt(delta);
 
-Nthr = M / 10; % wild guess
+Nthr = M / 2; % From [Vogelstein09]
 
 % Treat each neuron independently
 % h(j,t,l)
@@ -31,6 +31,7 @@ h(:,1,:) = normrnd(0, sd, N, M);
 
 % Now draw samples using modified Equation (11) in [Mischenko11]
 lastspike = -S;
+% should start at S + 1
 for t = 2 : T %should we just start this at S+1??
     % Sequential importance resampling    
     for m = 1 : M
@@ -85,28 +86,29 @@ for t = 2 : T %should we just start this at S+1??
 end
 
 % Marginal smoothing
-r = zeros(T, M, M);
-% At t = T, the filtering and smoothing distributions are identical.
-pb = pf(T,:);
-pb_next = zeros(1, M);
+% We don't need to save the r's; we just keep one timestep
+r = zeros(M, M);
 
-for t = T-1:-1:2
+% At t = T, the filtering and smoothing distributions are identical.
+pb = zeros(T,M);
+pb(T,:) = pf(T,:);
+
+for t = T:-1:2
     % Equations (12) and (13) in [Mischenko11]
     for m = 1 : M
         denom = 0;
         for mm = 1 : M
-            denom = denom + mvnpdf(h(:,t,m), h(:,t-1,mm), sd*eye(N)) * pf(t-1,mm);
+            denom = denom + mvnpdf(h(:,t,m), h(:,t-1,mm), sd^2*eye(N)) * pf(t-1,mm);
         end        
         for mm = 1 : M
-            numer = mvnpdf(h(:,t,m), h(:,t-1,mm), sd*eye(N)) * pf(t-1, m);
-            r(t,m,mm) = pb(m) * numer / denom;
-        end
-        pb_next(m) = sum(r(t,:,m));         
+            numer = mvnpdf(h(:,t,m), h(:,t-1,mm), sd^2*eye(N)) * pf(t-1, m);
+            r(m, mm) = pb(t, m) * numer / denom;            
+        end        
     end
-    pb = pb_next;
-    pb = pb / sum(pb);    
-    r(t,:,:) = r(t,:,:) / sum(sum(r(t,:,:)));    
+    
+    pb(t-1,:) = sum(r(t,:,:), 2);    
+    
+    pb(t-1,:) = pb(t-1,:) / sum(pb(t-1,:))    
 end
 
 end
-
