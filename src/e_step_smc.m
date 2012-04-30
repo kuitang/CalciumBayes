@@ -104,22 +104,34 @@ for t_index = 0:(T-S-2)
     
     % Equations (12) and (13) in [Mischenko11]
     for m = 1 : M
+        sigma_mat = sd^2*eye(N);
+%         prob = zeros(M,1);
+        mvnp = zeros(M,1);
         denom = 0;
+        denom1 = 0;
         for mm = 1 : M
-            sigma_mat = sd^2*eye(N);
-            %%%%%%%%%
-            %%% THIS CALCULATION RETURNS VERY LOW PROB - 
-            %%% LOOKING INTO IT - BS
+
             distance = h(:,t,m) - h(:,t-1,mm);       
-            prob = det(6.28318530717959*sigma_mat)^(-.5) * exp(-.5 * (distance' * inv(sigma_mat) * distance));
-            disp(prob);
-            disp(mvnpdf(h(:,t,m), h(:,t-1,mm), sd^2*eye(N)) * pf(t-1,mm));
+            mvnp(mm) = (2*pi)^(-N/2)*det(sigma_mat)^(-.5) * exp(-.5 * (distance' * inv(sigma_mat) * distance));
+            
+            % BS TOOK OUT MVNPDF TO SAVE TIME... CAN BE SLOW, TOO MUCH
+            % OVERHEAD
+%             if (m == mm)
+%                 disp(['explicit:' num2str(mvnp)]);
+%                 disp(mvnpdf(h(:,t,m), h(:,t-1,mm), sd^2*eye(N)));
+%             end
+%             disp(['first test ' num2str(mvnp == mvnpdf(h(:,t,m), h(:,t-1,mm), sd^2*eye(N)))]);
+            denom1 = denom1 +  mvnp(mm) * pf(t-1,mm);
             denom = denom + mvnpdf(h(:,t,m), h(:,t-1,mm), sd^2*eye(N)) * pf(t-1,mm);
             
         end        
         for mm = 1 : M
+            
             numer = mvnpdf(h(:,t,m), h(:,t-1,mm), sd^2*eye(N)) * pf(t-1, m);
-            r(m, mm) = pb(t, m) * numer / denom;            
+            r(m, mm) = pb(t, m) * numer / denom;  
+            disp(r(m,mm));
+            disp(pb(t, m) * prob(mm) / sum(prob));
+
         end        
     end
     
