@@ -1,31 +1,52 @@
-load('../data/truncdata.mat')
+% % %use the same random number sequence for debugging purposes
+RandStream.setDefaultStream ...
+     (RandStream('mt19937ar','seed',2));
+
+% load('../data/truncdata.mat')
+% truncate the data even more!
+% truncdata = truncdata(:,1:100);
+% n = truncdata;
+
+load('../data/testdata.mat')
+n = spikes';
+
 
 % Physical parameters (TODO: Set up and figure out scale!)
 % Currently using unit (discrete) time and bullshit values
 sigma = 0.5;
-tau = 2;
+tau = 30;
 delta = 1;
 
-% truncate the data even more!
-truncdata = truncdata(:,1:100);
-n = truncdata;
 
-[N T] = size(truncdata);
+
+[N T] = size(n);
 S = 20; % Indirect time window
 M = 50; % size of particle sampler
 
 % Parameter matrices
 % TODO: Set up priors!
-params.beta = zeros(N, N, S); % DO WE NEED BETA (N, N, 1)...
+params.beta = zeros(N, N, S-1); % DO WE NEED BETA (N, N, 1)...
 params.lambda = zeros(N, S);
 params.b = zeros(1, N);
 params.w = zeros(N, N);
-h = zeros(N,N,T,M);
+params.w = .1*exprnd(.5,N);
+for i=1:N/5
+    params.w(i,:) = -exprnd(2.3,N,1);
+end
+params.w = params.w .* (binornd(1,.1,N,N));%second arg is "sparesness"
+params.w = params.w .* binornd(1,.1,N,N);
+
+h = zeros(1,N,T,M);
 
 theta_intrinsic_thresh = .01; %???
 
+beta = params.beta;
+lambda = params.lambda;
+w = params.w;
+b = params.b;
+
 %until the change in connectivity matrix w is below threshold change
-while(sum(sum(abs(w - w_prev))) > thresh_w)
+% while(sum(sum(abs(w - w_prev))) > thresh_w)
     
     %parfor i = 1 : N
     for i = 1:N
@@ -68,7 +89,7 @@ while(sum(sum(abs(w - w_prev))) > thresh_w)
     
 %     m_step_joint(b, w, beta, lambda, tau, sigma, h, truncdata, i, delta, M);
     
-end
+% end
 
 
 

@@ -26,41 +26,59 @@ lambda = params.lambda;
 w = params.w;
 [~, S]  = size(lambda);
 [N, T] = size(n);
+M = size(h,4);
 b_i = theta_intrinsic(1);
 w_ii = theta_intrinsic(2);
-beta_ii = theta_intrinsic(3:2+S);
-lambda_i = theta_intrinsic(3+S:2*S+2);
+beta_ii = theta_intrinsic(3:1+S);
+lambda_i = theta_intrinsic(2+S:2*S+1);
 
 
 reg_param = 1;
 q_sum = 0;
 
+disp('running objective function');
+
 for m = 1:M
+    
+%     sample_sum = 0;
+    
     for t = S+1:T
         
         I = 0;
-        if t - S > 0
-            for s = 1 : S-1
+
+        for s = 1 : S-1
                
-                I = I + beta(i,:,s) * n(:,t-1) + lambda_i(s) - beta(i,i,s)*n(i,t-1) + ...
-                    beta_ii(s)*n(i,t-1);
+            I = I + beta(i,:,s) * n(:,t-s+1) + lambda_i(s) - beta(i,i,s)*n(i,t-s+1) + ...
+                beta_ii(s)*n(i,t-s+1);
            
-            end
-        end 
-        
-        J = b_i + I + w(i,:) * h(i,:,t,m) - w(i,i) * h(i,i,t,m) + w_ii * h(i,i,t,m);
-        
-        q_sum = q_sum + n(i,t)*log(1 - exp(-exp(J)*delta)) + ... %if n(i,t) = 1
-            (1 - n(i,t))*log(exp(-exp(J)*delta)); %if n(i,t) = 0
-            
-        for j = 1:N
-           
-            history_mean = (1 - delta/tau(j))*h(i,j,t,m) + n(j,t - delta);
-            q_sum = q_sum + p_weights(t,l)*log(normpdf(history_mean, sigma(j)));
-            
         end
+        
+%         sum(reshape(beta(i,:,:),S,N) * ( 
+
+        
+        J = b_i + I + reshape(w(i,:),1,N) * reshape(h(i,:,t,m),N,1) - w(i,i) * h(i,i,t,m) + w_ii * h(i,i,t,m);
+        
+%         sample_sum = sample_sum + n(i,t)*log(1 - exp(-exp(J)*delta)) + ... %if n(i,t) = 1
+%             (1 - n(i,t))*log(exp(-exp(J)*delta)); %if n(i,t) = 0
+%             
+%         for j = 1:N
+%            
+%             history_mean = (1 - delta/tau)*h(i,j,t-1,m) + n(j,t - 1);
+%             sample_sum = sample_sum + log(normpdf(h(i,j,t,m),history_mean, sigma));
+%             
+%         end
+        
+    
+        history_mean = (1 - delta/tau).*h(i,:,t-1,m) + n(:,t - 1)';
+        sample_weighted = p_weights(t,m) * (n(i,t)*log(1 - exp(-exp(J)*delta)) + ... %if n(i,t) = 1
+            (1 - n(i,t))*log(exp(-exp(J)*delta)) + ... %if n(i,t) = 0
+                sum(log(normpdf(h(i,:,t,m),history_mean,sigma))));
+      
+        
+        q_sum = q_sum + sample_weighted;
+
     end
 end
 
-q = q_sum + reg_param * sum(w);
+q = q_sum + reg_param * sum(sum(w));
 

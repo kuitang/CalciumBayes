@@ -49,8 +49,8 @@ for t = 2 : T %should we just start this at S+1??
         % Compute J
         I = 0;
         if t - S > 0
-            for s = 2 : S
-                I = I + beta(i,:,s) * data(:,t-1) + lambda(i,s);
+            for s = 1 : S-1
+                I = I + beta(i,:,s) * data(:,t-s+1) + lambda(i,s);
             end
         end        
         J = b(i) + I + w(i,:) * h(:,t,m);
@@ -98,7 +98,7 @@ r = zeros(M, M);
 pb = zeros(T,M);
 pb(T,:) = pf(T,:);
 
-for t = T:-1:2
+for t = T:2
     % Equations (12) and (13) in [Mischenko11]
     for m = 1 : M
         denom = 0;

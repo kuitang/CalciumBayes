@@ -1,4 +1,6 @@
-load('../data/truncdata.mat')
+% load('../data/truncdata.mat')
+
+load('../data/spikes.mat')
 
 % Physical parameters (TODO: Set up and figure out scale!)
 % Currently using unit (discrete) time and bullshit values
@@ -36,10 +38,10 @@ while(sum(sum(abs(w - w_prev))) > thresh_w)
         theta_intrinsic = [b(i) w(i,i) reshape(beta(i, i, :),1,S-1) lambda(i,:)];
         
         %e
-        [r h(i,:,:,:)] = e_step_smc(i, M, tau, delta, sigma, params, n);
+        [p_weights h(i,:,:,:)] = e_step_smc(i, M, tau, delta, sigma, params, n);
         save('first_e_step_complete.mat');%save this if we complete an e_step so we can test m_step
         %m
-        theta_intrinsic = m_step_smc(theta_intrinsic, params, h, n, i, delta);
+        theta_intrinsic = m_step_smc(theta_intrinsic, params, h, n, i, delta, tau, sigma, p_weights);
         params.b(i) = theta_intrinsic(1);
         params.w(i,i) = theta_intrinsic(2);
         params.beta(i, i, :) = theta_intrinsic(3:2+S);
@@ -54,15 +56,19 @@ while(sum(sum(abs(w - w_prev))) > thresh_w)
             disp(['Neuron ' num2str(i) '/' num2str(N)]);
             
             %e
-            [r h] = e_step_smc(i, M, tau, delta, sigma, beta, lambda, b, w, n);
+            [r h] = e_step_smc(i, M, tau, delta, sigma, params, n);
             %m
-            m_step_smc(theta_intrinsic, i, M, tau, delta, sigma, beta, lambda, b, w, n);
+            m_step_smc(theta_intrinsic, params, h, n, i, delta, p_weights);
+            params.b(i) = theta_intrinsic(1);
+            params.w(i,i) = theta_intrinsic(2);
+            params.beta(i, i, :) = theta_intrinsic(3:2+S);
+            params.lambda(i,:) = theta_intrinsic(3+S:2*S+2);
             
         end
     end
     
     
-    m_step_joint(b, w, beta, lambda, tau, sigma, h, truncdata, i, delta, M);
+%     m_step_joint(b, w, beta, lambda, tau, sigma, h, truncdata, i, delta, M);
     
 end
 
