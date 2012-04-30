@@ -33,8 +33,8 @@ params.w = .1*exprnd(.5,N);
 for i=1:N/5
     params.w(i,:) = -exprnd(2.3,N,1);
 end
-params.w = params.w .* (binornd(1,.1,N,N));%second arg is "sparesness"
-params.w = params.w .* binornd(1,.1,N,N);
+params.w = params.w .* binornd(1,.1,N,N);%second arg is "sparesness"
+
 
 h = zeros(1,N,T,M);
 

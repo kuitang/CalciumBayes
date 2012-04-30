@@ -32,27 +32,27 @@ h = zeros(N, T, M);
 % At the first timestep, we have a mean-zero normal distribution.
 % Draw M samples and give them uniform importance.
 pf = ones(T, M) / M;
-h(:,1,:) = normrnd(0, sd, N, M);
+h(:,S+1,:) = normrnd(0, sd, N, M);
 
 % Now draw samples using modified Equation (11) in [Mischenko11]
 lastspike = -S;
 % should start at S + 1
-for t = 2 : T %should we just start this at S+1??
+for t = S+1 : T %should we just start this at S+1??
     % Sequential importance resampling    
     for m = 1 : M
         % Draw from the one-step-ahead proposal
         % Draw a new history term from the proposal (transition)
         % distribution        
-        h_mean = (1 - delta)/tau * h(:,t-1,m) + data(:,t-1);        
+        h_mean = (1 - delta/tau) * h(:,t-1,m) + data(:,t-1);        
         h(:,t,m) = normrnd(h_mean, sd);        
 
         % Compute J
         I = 0;
-        if t - S > 0
-            for s = 1 : S-1
-                I = I + beta(i,:,s) * data(:,t-s+1) + lambda(i,s);
-            end
-        end        
+
+        for s = 1 : S-1
+            I = I + beta(i,:,s) * data(:,t-(s+1)) + lambda(i,s);
+        end
+      
         J = b(i) + I + w(i,:) * h(:,t,m);
 
         % Compute probabilities
@@ -98,7 +98,10 @@ r = zeros(M, M);
 pb = zeros(T,M);
 pb(T,:) = pf(T,:);
 
-for t = T:2
+for t_index = 0:(T-S-2)
+    
+    t = T - t_index;
+    
     % Equations (12) and (13) in [Mischenko11]
     for m = 1 : M
         denom = 0;
@@ -113,7 +116,7 @@ for t = T:2
     
     pb(t-1,:) = sum(r(t,:,:), 2);    
     
-    pb(t-1,:) = pb(t-1,:) / sum(pb(t-1,:))    
+    pb(t-1,:) = pb(t-1,:) / sum(pb(t-1,:)) 
 end
 
 end

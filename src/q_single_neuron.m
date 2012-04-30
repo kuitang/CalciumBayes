@@ -48,12 +48,12 @@ for m = 1:M
 
         for s = 1 : S-1
                
-            I = I + beta(i,:,s) * n(:,t-s+1) + lambda_i(s) - beta(i,i,s)*n(i,t-s+1) + ...
-                beta_ii(s)*n(i,t-s+1);
+            I = I + beta(i,:,s) * n(:,t-(s+1)) + lambda_i(s) - beta(i,i,s)*n(i,t-(s+1)) + ...
+                beta_ii(s)*n(i,t-(s+1));
            
         end
         
-%         sum(reshape(beta(i,:,:),S,N) * ( 
+%         sum(sqeeze(beta(i,:,:),S,N) * ( 
 
         
         J = b_i + I + reshape(w(i,:),1,N) * reshape(h(i,:,t,m),N,1) - w(i,i) * h(i,i,t,m) + w_ii * h(i,i,t,m);
@@ -71,7 +71,7 @@ for m = 1:M
     
         history_mean = (1 - delta/tau).*h(i,:,t-1,m) + n(:,t - 1)';
         sample_weighted = p_weights(t,m) * (n(i,t)*log(1 - exp(-exp(J)*delta)) + ... %if n(i,t) = 1
-            (1 - n(i,t))*log(exp(-exp(J)*delta)) + ... %if n(i,t) = 0
+            (1 - n(i,t))*(-exp(J)*delta) + ... %if n(i,t) = 0
                 sum(log(normpdf(h(i,:,t,m),history_mean,sigma))));
       
         
