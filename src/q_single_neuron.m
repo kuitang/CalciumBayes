@@ -1,9 +1,9 @@
-function q = q_single_neuron(b, w, beta, lambda, tau, sigma, h, n, i, delta, M)
+function q = q_single_neuron(theta_intrinsic, params, h, n, i, delta, tau, sigma, p_weights)
 
 %Q_SINGLE_NEURON 
-% This evaluates the q function of the EM algorithm for our
+% This evaluates the negative of the q function of the EM algorithm for our
 % model. It takes in all of the parameters and sampled and observed values
-% and returns optimzed parameter values b, w, beta, gamma, tau, and sigma.
+% and returns the value of q(theta,theta(old)).
 
 % OPTIMIZED PARAMS
 % b         the scalar parameter for this neuron's base firing rate
@@ -19,36 +19,48 @@ function q = q_single_neuron(b, w, beta, lambda, tau, sigma, h, n, i, delta, M)
 % n         N X T matrix of all observed spikes
 % i         the index of this neuron
 
-q_single_neuron(theta, h, n, i, delta, M);
 
-%EXTRACT THETA TO PARAMS
+
+beta = params.beta;
+lambda = params.lambda;
+w = params.w;
+[~, S]  = size(lambda);
+[N, T] = size(n);
+b_i = theta_intrinsic(1);
+w_ii = theta_intrinsic(2);
+beta_ii = theta_intrinsic(3:2+S);
+lambda_i = theta_intrinsic(3+S:2*S+2);
+
 
 reg_param = 1;
 q_sum = 0;
 
-for l = 1:M
+for m = 1:M
     for t = S+1:T
         
         I = 0;
         if t - S > 0
-            for s = 2 : S
-                I = I + beta(i,:,s) * n(:,t-1) + lambda(s);
+            for s = 1 : S-1
+               
+                I = I + beta(i,:,s) * n(:,t-1) + lambda_i(s) - beta(i,i,s)*n(i,t-1) + ...
+                    beta_ii(s)*n(i,t-1);
+           
             end
         end 
         
-        J = b + I + w * h(:,t,m);
+        J = b_i + I + w(i,:) * h(i,:,t,m) - w(i,i) * h(i,i,t,m) + w_ii * h(i,i,t,m);
         
         q_sum = q_sum + n(i,t)*log(1 - exp(-exp(J)*delta)) + ... %if n(i,t) = 1
             (1 - n(i,t))*log(exp(-exp(J)*delta)); %if n(i,t) = 0
             
         for j = 1:N
            
-            history_mean = (1 - delta/tau(j))*h(j,t,m) + n(j,t - delta);
-            q_sum = q_sum + log(normpdf(history_mean, sigma(j)));
+            history_mean = (1 - delta/tau(j))*h(i,j,t,m) + n(j,t - delta);
+            q_sum = q_sum + p_weights(t,l)*log(normpdf(history_mean, sigma(j)));
             
         end
     end
 end
 
-q = -q_sum/M + reg_param * sum(w);
+q = q_sum + reg_param * sum(w);
 

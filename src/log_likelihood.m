@@ -1,4 +1,11 @@
-function ll = log_likelihood(b, w, beta, lambda, h, n, delta)
+function ll = log_likelihood(params, h, n, delta)
+
+%log(P(data | params))
+
+beta = params.beta;
+lambda = params.lambda;
+w = params.w;
+b = params.b;
 
 ll = 0;
 
@@ -6,11 +13,9 @@ for i = 1:N
     for t = S+1:T
         
         I = 0;
-        if t - S > 0
-            for s = 2 : S
-                I = I + beta(i,:,s) * n(i,:,t-1) + lambda(s);
-            end
-        end 
+        for s = 2 : S
+            I = I + beta(i,:,s) * n(i,:,t-1) + lambda(s);
+        end
         
         J = b + I + w * h(i,:,t,m);
         

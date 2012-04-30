@@ -1,4 +1,4 @@
-function [ pb h ] = e_step_smc( i, M, tau, delta, sigma, beta, lambda, b, w, data )
+function [ pb h ] = e_step_smc( i, M, tau, delta, sigma, params, data )
 %e_step_smc Perform the sampling SMC E-step for one neuron
 %   i - which neuron (scalar)
 %   M - number of particles (scalar)
@@ -13,6 +13,11 @@ function [ pb h ] = e_step_smc( i, M, tau, delta, sigma, beta, lambda, b, w, dat
 % 
 %   pb - backward sample weights (T x M)
 %   h - samples (N x T x M)
+
+beta = params.beta;
+lambda = params.lambda;
+w = params.w;
+b = params.b;
 
 [~, S]  = size(lambda);
 [N, T] = size(data);

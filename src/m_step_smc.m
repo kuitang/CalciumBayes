@@ -1,9 +1,8 @@
-function [b, w,  ] = m_step_smc(b, w, beta, lambda, tau, sigma, h, n, i, delta, M)
-%M_STEP_SMC Summary of this function goes here
-%   Detailed explanation goes here
+function [theta_intrinsic] = m_step_smc(theta_intrinsic, params, h, n, i, delta, tau, sigma, p_weights)
 
 
-
+    options = optimset('LargeScale','off');
+    [theta_intrinsic,fval,exitflag,output] = fminunc('q_signle_neuron',theta_intrinsic,options, params, h, n, i, delta, tau, sigma, p_weights);
 
 end
 
