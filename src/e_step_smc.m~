@@ -108,9 +108,8 @@ for t_index = 0:(T-S-2)
         for mm = 1 : M
             sigma_mat = sd^2*eye(N);
             distance = h(:,t,m) - h(:,t-1,mm);       
-            prob = det(6.28318530717959*sigma_mat)^(-.5) * exp(-.5 * (distance' * inv(sigma_mat) * distance));
-            disp(prob);
-            disp(mvnpdf(h(:,t,m), h(:,t-1,mm), sd^2*eye(N)) * pf(t-1,mm));
+            prob = det(6.28318530717959*sigma_mat)^(-.5) * exp(-.5 * (distance' * inv(sigma) * distance));
+            
             denom = denom + mvnpdf(h(:,t,m), h(:,t-1,mm), sd^2*eye(N)) * pf(t-1,mm);
             
         end        
