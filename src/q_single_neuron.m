@@ -27,7 +27,7 @@ reg_param = 1;
 q_sum = 0;
 
 for l = 1:M
-    for t = S+1
+    for t = S+1:T
         
         I = 0;
         if t - S > 0
