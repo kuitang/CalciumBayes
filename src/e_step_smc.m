@@ -107,6 +107,9 @@ for t_index = 0:(T-S-2)
         denom = 0;
         for mm = 1 : M
             sigma_mat = sd^2*eye(N);
+            %%%%%%%%%
+            %%% THIS CALCULATION RETURNS VERY LOW PROB - 
+            %%% LOOKING INTO IT - BS
             distance = h(:,t,m) - h(:,t-1,mm);       
             prob = det(6.28318530717959*sigma_mat)^(-.5) * exp(-.5 * (distance' * inv(sigma_mat) * distance));
             disp(prob);
