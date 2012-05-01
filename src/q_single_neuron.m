@@ -22,15 +22,16 @@ function q = q_single_neuron(theta_intrinsic, params, h, n, i, delta, tau, sigma
 
 
 beta = params.beta;
-lambda = params.lambda;
+% lambda = params.lambda;
 w = params.w;
-[~, S]  = size(lambda);
+S  = size(beta,3) + 1;
 [N, T] = size(n);
 M = size(h,4);
 b_i = theta_intrinsic(1);
-w_ii = theta_intrinsic(2);
-beta_ii = theta_intrinsic(3:1+S);
-lambda_i = theta_intrinsic(2+S:2*S+1);
+w(i,i) = theta_intrinsic(2);
+beta(i,i,:) = reshape(theta_intrinsic(3:1+S),1,1,S-1);
+disp(theta_intrinsic);
+% lambda_i = theta_intrinsic(2+S:2*S+1);
 
 
 reg_param = 1;
@@ -48,15 +49,14 @@ for m = 1:M
 
         for s = 1 : S-1
                
-            I = I + beta(i,:,s) * n(:,t-(s+1)) + lambda_i(s) - beta(i,i,s)*n(i,t-(s+1)) + ...
-                beta_ii(s)*n(i,t-(s+1));
+            I = I + beta(i,:,s) * n(:,t-(s+1));
            
         end
         
 %         sum(sqeeze(beta(i,:,:),S,N) * ( 
 
         
-        J = b_i + I + reshape(w(i,:),1,N) * reshape(h(i,:,t,m),N,1) - w(i,i) * h(i,i,t,m) + w_ii * h(i,i,t,m);
+        J = b_i + I + reshape(w(i,:),1,N) * reshape(h(i,:,t,m),N,1);
         
 %         sample_sum = sample_sum + n(i,t)*log(1 - exp(-exp(J)*delta)) + ... %if n(i,t) = 1
 %             (1 - n(i,t))*log(exp(-exp(J)*delta)); %if n(i,t) = 0
@@ -68,17 +68,22 @@ for m = 1:M
 %             
 %         end
         
-    
-        history_mean = (1 - delta/tau).*h(i,:,t-1,m) + n(:,t - 1)';
+    %TOOK OUT normpdf BECAUSE NOT DEPENDENT ON PARAMS
+%         history_mean = (1 - delta/tau).*h(i,:,t-1,m) + n(:,t - 1)';
+%         disp(p_weights(t,m));
         sample_weighted = p_weights(t,m) * (n(i,t)*log(1 - exp(-exp(J)*delta)) + ... %if n(i,t) = 1
-            (1 - n(i,t))*(-exp(J)*delta) + ... %if n(i,t) = 0
-                sum(log(normpdf(h(i,:,t,m),history_mean,sigma))));
+            (1 - n(i,t))*(-exp(J)*delta));% + ... %if n(i,t) = 0
+%                 sum(log(normpdf(h(i,:,t,m),history_mean,sigma))));
       
-        
-        q_sum = q_sum + sample_weighted;
+        if(~isnan(sample_weighted))        
+            q_sum = q_sum + sample_weighted;
+        end
+%         if (q_sum == -Inf)
+%             break;
+%         end
 
     end
 end
 
-q = q_sum + reg_param * sum(sum(w));
+q = q_sum + reg_param * sum(sum(abs(w)))
 

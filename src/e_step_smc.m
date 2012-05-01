@@ -15,11 +15,11 @@ function [ pb h ] = e_step_smc( i, M, tau, delta, sigma, params, data )
 %   h - samples (N x T x M)
 
 beta = params.beta;
-lambda = params.lambda;
+% lambda = params.lambda;
 w = params.w;
 b = params.b;
 
-[~, S]  = size(lambda);
+S = size(beta,2) + 1;
 [N, T] = size(data);
 
 sd = sigma*sqrt(delta);
@@ -36,13 +36,17 @@ h(:,S+1,:) = normrnd(0, sd, N, M);
 
 % Now draw samples using modified Equation (11) in [Mischenko11]
 lastspike = -S;
-% should start at S + 1
-for t = S+1 : T %should we just start this at S+1??
+% should start at S + 2
+for t = S+2 : T 
     % Sequential importance resampling    
     for m = 1 : M
         % Draw from the one-step-ahead proposal
         % Draw a new history term from the proposal (transition)
         % distribution        
+        
+        %actually we don't use one-step-ahead for now, we use "prior
+        %sampler" - just as well though - apprently just less efficient but
+        %I haven't figured out how to sample from conditional for one-ahead
         h_mean = (1 - delta/tau) * h(:,t-1,m) + data(:,t-1);        
         h(:,t,m) = normrnd(h_mean, sd);        
 
@@ -50,7 +54,7 @@ for t = S+1 : T %should we just start this at S+1??
         I = 0;
 
         for s = 1 : S-1
-            I = I + beta(i,:,s) * data(:,t-(s+1)) + lambda(i,s);
+            I = I + beta(i,:,s) * data(:,t-(s+1)); %took out lambda
         end
       
         J = b(i) + I + w(i,:) * h(:,t,m);
@@ -106,13 +110,15 @@ for t_index = 0:(T-S-2)
     for m = 1 : M
         sigma_mat = sd^2*eye(N);
 %         prob = zeros(M,1);
-        mvnp = zeros(M,1);
-        denom = 0;
-        denom1 = 0;
+        num_terms = zeros(M,1);
+%         denom = 0;
+%         denom1 = 0;
         for mm = 1 : M
-
-            distance = h(:,t,m) - h(:,t-1,mm);       
-            mvnp(mm) = (2*pi)^(-N/2)*det(sigma_mat)^(-.5) * exp(-.5 * (distance' * inv(sigma_mat) * distance));
+            h_mean = (1 - delta/tau) * h(:,t-1,mm) + data(:,t-1);
+            distance = h(:,t,m) - h_mean;       
+            num_terms(mm) = (2*pi)^(-N/2)*det(sigma_mat)^(-.5) * ...
+                exp(-.5 * (distance' * inv(sigma_mat) * distance)) * ...
+                pf(t-1,mm);
             
             % BS TOOK OUT MVNPDF TO SAVE TIME... CAN BE SLOW, TOO MUCH
             % OVERHEAD
@@ -121,21 +127,21 @@ for t_index = 0:(T-S-2)
 %                 disp(mvnpdf(h(:,t,m), h(:,t-1,mm), sd^2*eye(N)));
 %             end
 %             disp(['first test ' num2str(mvnp == mvnpdf(h(:,t,m), h(:,t-1,mm), sd^2*eye(N)))]);
-            denom1 = denom1 +  mvnp(mm) * pf(t-1,mm);
-            denom = denom + mvnpdf(h(:,t,m), h(:,t-1,mm), sd^2*eye(N)) * pf(t-1,mm);
+%             denom1 = denom1 +  mvnp(mm) * pf(t-1,mm);
+%             denom = denom + mvnpdf(h(:,t,m), h(:,t-1,mm), sd^2*eye(N)) * pf(t-1,mm);
             
         end        
         for mm = 1 : M
             
-            numer = mvnpdf(h(:,t,m), h(:,t-1,mm), sd^2*eye(N)) * pf(t-1, m);
-            r(m, mm) = pb(t, m) * numer / denom;  
-            disp(r(m,mm));
-            disp(pb(t, m) * prob(mm) / sum(prob));
+%             numer = mvnpdf(h(:,t,m), h(:,t-1,mm), sd^2*eye(N)) * pf(t-1, m);
+            r(m, mm) = pb(t, m) * num_terms(mm) / sum(num_terms);  
+%             disp(r(m,mm));
+%             disp(pb(t, m) * prob(mm) / sum(prob));
 
         end        
     end
     
-    pb(t-1,:) = sum(r(:,:), 2);    
+    pb(t-1,:) = sum(r, 1);%sum over 1 or 2 here? I THINK 1 - BS
     
     pb(t-1,:) = pb(t-1,:) / sum(pb(t-1,:)) ;
 end
