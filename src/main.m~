@@ -33,7 +33,6 @@ for i=1:N/5
     params.w(i,:) = -exprnd(2.3,N,1);
 end
 params.w = params.w .* binornd(1,.1,N,N);%second arg is "sparesness"
-disp(w);
 
 
 h = zeros(N,N,T,M);
@@ -41,7 +40,7 @@ h = zeros(N,N,T,M);
 theta_intrinsic_thresh = .01; %???
 
 beta = params.beta;
-lambda = params.lambda;
+% lambda = params.lambda;
 w = params.w;
 b = params.b;
 
@@ -54,18 +53,22 @@ b = params.b;
     %parfor i = 1 : N
     for i = 1:N
 
-        ll = -Inf;
+        ll(1) = -Inf;
+        iter = 1;
         
         %theta_intrinsic = [b_i w_ii beta_ii(2:S)' lambda(1:S-1)] % NO
         %LAMBDA
         theta_intrinsic = [b(i) w(i,i) reshape(beta(i, i, :),1,S-1)];
+        old_theta_intr = theta_intrinsic;
         
         %e
-        if(~first)
-            [p_weights h(i,:,:,:)] = e_step_smc(i, M, tau, delta, sigma, params, n);
-            first = 0;
-        end
-%         save('first_e_step_complete.mat');%save this if we complete an
+        [p_weights h(i,:,:,:)] = e_step_smc(i, M, tau, delta, sigma, params, n);
+
+%         if(~first)
+%             [p_weights h(i,:,:,:)] = e_step_smc(i, M, tau, delta, sigma, params, n);
+%             first = 0;
+%         end
+        save('new_e_step_complete.mat');%save this if we complete an
 %         e_step so we can test m_step
 %         load('first_e_step_complete.mat');
         %m
@@ -76,24 +79,31 @@ b = params.b;
 %         params.lambda(i,:) = theta_intrinsic(3+S:2*S+2);
         
         %compute new log-likelihood
+        save('new_m_step_complete.mat');
         nll = log_likelihood(params, h, n, delta, p_weights);
-        disp(['ll =' num2str(nll)]);
+        ll = [ll nll];
+        disp('ll =');
+        disp(ll);
         
-        while(ll + theta_intrinsic_thresh > nll)
+        while(abs()
+            
+            iter = iter + 1;
             
             disp(['Neuron ' num2str(i) '/' num2str(N)]);
             
             %e
             [p_weights h(i,:,:,:)] = e_step_smc(i, M, tau, delta, sigma, params, n);
             %m
-            m_step_smc(theta_intrinsic, params, h, n, i, delta, p_weights);
+            m_step_smc(theta_intrinsic, params, h, n, i, delta, tau, sigma, p_weights);
             params.b(i) = theta_intrinsic(1);
             params.w(i,i) = theta_intrinsic(2);
-            params.beta(i, i, :) = theta_intrinsic(3:2+S);
+            params.beta(i, i, :) = reshape(theta_intrinsic(3:1+S),1,1,S-1);
 %             params.lambda(i,:) = theta_intrinsic(3+S:2*S+2);
 
             nll = log_likelihood(params, h, n, delta, p_weights);
-            disp(['ll =' num2str(nll)]);
+            ll = [ll nll];
+            disp('ll =');
+            disp(ll);
             
         end
     end

@@ -52,12 +52,16 @@ b = params.b;
     
     %parfor i = 1 : N
     for i = 1:N
+        
+        disp(['Neuron ' num2str(i) '/' num2str(N)]);
 
         ll = -Inf;
+        iter = 1;
         
         %theta_intrinsic = [b_i w_ii beta_ii(2:S)' lambda(1:S-1)] % NO
         %LAMBDA
         theta_intrinsic = [b(i) w(i,i) reshape(beta(i, i, :),1,S-1)];
+        old_theta_intr = ones(size(theta_intrinsic)) * 500;
         
         %e
         [p_weights h(i,:,:,:)] = e_step_smc(i, M, tau, delta, sigma, params, n);
@@ -66,11 +70,11 @@ b = params.b;
 %             [p_weights h(i,:,:,:)] = e_step_smc(i, M, tau, delta, sigma, params, n);
 %             first = 0;
 %         end
-        save('new_e_step_complete.mat');%save this if we complete an
+%         save('new_e_step_complete.mat');%save this if we complete an
 %         e_step so we can test m_step
 %         load('first_e_step_complete.mat');
         %m
-        theta_intrinsic = m_step_smc(theta_intrinsic, params, h, n, i, delta, tau, sigma, p_weights);
+        theta_intrinsic = m_step_smc(theta_intrinsic, params, h, n, i, delta, tau, sigma, p_weights)
         params.b(i) = theta_intrinsic(1);
         params.w(i,i) = theta_intrinsic(2);
         params.beta(i, i, :) = reshape(theta_intrinsic(3:1+S),1,1,S-1);
@@ -79,23 +83,38 @@ b = params.b;
         %compute new log-likelihood
         save('new_m_step_complete.mat');
         nll = log_likelihood(params, h, n, delta, p_weights);
-        disp(['ll =' num2str(nll)]);
+        ll = [ll nll];
+        disp('ll =');
+        disp(ll);
+%         disp('******');
+%         disp(theta_intrinsic);
+%         disp(old_theta_intr);
+%         disp(theta_intrinsic - old_theta_intr);
+%         disp(abs(theta_intrinsic - old_theta_intr));
+%         disp(sum(abs(theta_intrinsic - old_theta_intr)));
         
-        while(ll + theta_intrinsic_thresh > nll)
+        while(sum(abs(theta_intrinsic - old_theta_intr)) > .01)
+            
+            iter = iter + 1;
+            old_theta_intr = theta_intrinsic;
             
             disp(['Neuron ' num2str(i) '/' num2str(N)]);
             
             %e
             [p_weights h(i,:,:,:)] = e_step_smc(i, M, tau, delta, sigma, params, n);
             %m
-            m_step_smc(theta_intrinsic, params, h, n, i, delta, p_weights);
+            theta_intrinsic = m_step_smc(theta_intrinsic, params, h, n, i, delta, tau, sigma, p_weights);
             params.b(i) = theta_intrinsic(1);
             params.w(i,i) = theta_intrinsic(2);
-            params.beta(i, i, :) = theta_intrinsic(3:2+S);
+            params.beta(i, i, :) = reshape(theta_intrinsic(3:1+S),1,1,S-1);
+            disp('abs diff of params');
+            disp(sum(abs(theta_intrinsic - old_theta_intr)));
 %             params.lambda(i,:) = theta_intrinsic(3+S:2*S+2);
 
             nll = log_likelihood(params, h, n, delta, p_weights);
-            disp(['ll =' num2str(nll)]);
+            ll = [ll nll];
+            disp('ll =');
+            disp(ll);
             
         end
     end

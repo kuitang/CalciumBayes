@@ -34,7 +34,8 @@ disp(theta_intrinsic);
 % lambda_i = theta_intrinsic(2+S:2*S+1);
 
 
-reg_param = 1;
+reg_param1 = 1e1;
+reg_param2 = 1e1;
 q_sum = 0;
 
 disp('running objective function');
@@ -52,11 +53,18 @@ for m = 1:M
             I = I + beta(i,:,s) * n(:,t-(s+1));
            
         end
+
+            %squeeze or reshape here?
+%         I = squeeze(beta(i,:,:),N,S-1) * reshape(n(:,t-S:t-2),N,S-1);
+        
+        
         
 %         sum(sqeeze(beta(i,:,:),S,N) * ( 
 
         
         J = b_i + I + reshape(w(i,:),1,N) * reshape(h(i,:,t,m),N,1);
+%         J = b_i + I + w(i,i) * h(i,i,t,m);
+
         
 %         sample_sum = sample_sum + n(i,t)*log(1 - exp(-exp(J)*delta)) + ... %if n(i,t) = 1
 %             (1 - n(i,t))*log(exp(-exp(J)*delta)); %if n(i,t) = 0
@@ -85,5 +93,5 @@ for m = 1:M
     end
 end
 
-q = q_sum + reg_param * sum(sum(abs(w)))
+q = -q_sum + reg_param1 * sum(sum(abs(w))) + reg_param2 * sum(sum(sum(abs(beta))))
 
