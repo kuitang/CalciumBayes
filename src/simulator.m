@@ -1,58 +1,67 @@
-function [sim] = simulator(N, T)
+function Sim = simulator(N, T)
 
+Sim.sparesness = .1;
 Sim.N = N;
 Sim.T = T;
-Sim.delta = 1;
-Sim.tau = 20;
-Sim.H=zeros(T,N);
-f_J=zeros(T,N);
-J=zeros(T,N);
+Sim.delta = .001;
+Sim.tau = .020;
+Sim.sigma = .05;
+Sim.h=zeros(N,N,T);
+Sim.f_J = zeros(N,T);
+Sim.J=zeros(N,T);
 
-f_J(1,:)=;
+Sim.lambda = exprnd(.85,[N,1]);
+Sim.b = normrnd(5,.5,[N,1]);
 
-Sim.w = exprnd(.5,V.Ncells);
 
-        Sim.W=(1-Sim.P.WS)*(rand(V.Ncells)-1);
-        for i=1:5:V.Ncells
-            Sim.W(i,:)=rand(V.Ncells,1);
-        end
-    case 5
-        Sim.W=(1-Sim.P.WS)*(exprnd(.5,V.Ncells));
-        for i=1:V.Ncells/5
-            Sim.W(i,:)=-exprnd(2.3,V.Ncells,1);
-        end
-        Sim.W=Sim.W.*(binornd(1,sparseness,V.Ncells,V.Ncells));
-    case 6 %random plus along daisy-chain
-        dgnl=(rand(V.Ncells-1,1));
-        Sim.W=diag(dgnl,1);
+Sim.f_J(:,1)= Sim.lambda;
+% Sim.f_J(:,1) = zeros(N,1); % if you want no input
 
-spikes=zeros(V.T,V.Ncells);
-spikes(1,:)=binornd(1,FJ(1,:),[1,V.Ncells]);
-
-for i=2:V.T
-    H(i,:)=gam*H(i-1,:)+spikes(i-1,:);
-    for j=1:V.Ncells
-        J(i,j)=beta(j)+Sim.W(:,j)'*H(i,:)';%spikes(i-1,:)')+J(i-1,j)');
-        FJ(i,j)=1-exp((-exp(J(i,j))*V.dtI));
+for i = 1:N
+    if (Sim.f_J(i,1) > 1)
+        Sim.f_J(i,1) = .95;
     end
-    spikes(i,:)=binornd(1,FJ(i,:),[1,V.Ncells]);
 end
 
 
-V.T=input('number of time steps: ');
-V.Ncells=input('number of cells: ');
-tau=.02; %PSP decay time
-% tauI=.02; % inhibitory PSP decay time
-% tauE=.01; %excitatory PSP decay time
-gam=1-(V.dtI/tau); %gam=1-(V.dtI/tauI); gamE=1-(V.dtI/tauE);
-sr=2;%input('mean SR: ');
-lam=exprnd((sr*V.dtI),[1,V.Ncells]);
-% alpha=1;
-beta=log(-log(1-lam)/V.dtI);
-% snr=input('SNR: ');
-% sig=1/snr;
+
+Sim.w = exprnd(.5,N);
+
+for i = 1:5:N    
+    Sim.w(:,i) = -exprnd(2.3,[N,1]);
+end
+
+Sim.w = Sim.w .* (binornd(1,Sim.sparesness,N,N));
+for i = 1:N   
+    Sim.w(i,i) = -abs(normrnd(.6,.2));
+end
+
+Sim.n = zeros(N,T);
+for i = 1:N
+    Sim.n(i,1) = binornd(1,Sim.f_J(i,1));
+end
+
+Sim.h(:,:,1) = normrnd(0,Sim.sigma);
+
+gam = 1-(Sim.delta/Sim.tau);
 
 
+for t = 2:T
+    for i = 1:N    
+        
+        Sim.J(i,t) = Sim.b(i);
+        
+        for j = 1:N
+            
+            Sim.h(i,j,t) = gam * Sim.h(i,j,t-1) + Sim.n(j,t-1) + Sim.sigma * sqrt(Sim.delta) * normrnd(0,1);
+            Sim.J(i,t) = Sim.J(i,t) + Sim.w(i,j) * Sim.h(i,j,t);
 
+        end
+        
+    Sim.f_J(i,t) = 1 - exp(-exp(Sim.J(i,t))*Sim.delta);
+    Sim.n(i,t) = binornd(1, Sim.f_J(i,t));
+    
+    end
+end
 
 end
