@@ -6,7 +6,7 @@ function [theta_intrinsic] = m_step_smc(theta_intrinsic, params, h, n, i, delta,
     options = optimset(options,'Algorithm','trust-region-reflective');
     options = optimset(options,'GradObj','on');
     options = optimset(options,'Hessian','user-supplied');    
-    options = optimset(options,'TolFun',.5);
+    options = optimset(options,'TolFun',.1);
     options = optimset(options,'MaxIter',100);
     %DRASTIC SLOWDOWN -- run this on cluster machine!
     %options = optimset(options,'DerivativeCheck', 'on');

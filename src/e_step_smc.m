@@ -118,7 +118,9 @@ for t_index = 0:(T-S-2)
 %         denom = 0;
 %         denom1 = 0;
         for mm = 1 : M
+            % hottest line (83/180 secs)
             h_mean = (1 - delta/tau) * h(:,t-1,mm) + data(:,t-1);
+            % third hottest line (25/180 secs)
             distance = h(:,t,m) - h_mean;
             % Don't bother with matrices; we have sigma * I form covariance
             % Don't even need normalization, since we explicitly normalize

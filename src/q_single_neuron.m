@@ -42,7 +42,7 @@ reg_param1 = 0.1;
 reg_param2 = 0.1;
 q_sum = 0;
 
-g = zeros(1, S + 1);
+g = zeros(S + 1, 1);
 H = zeros(S + 1, S + 1);
 
 %disp('running objective function');
@@ -51,7 +51,7 @@ for t = S+1:T
     % Partial derivatives of J
     % dJ(1) = dJ_i/db_i = 1
     % dJ(2) = DJ_i/dw_{ii} = h_{ii}(t)
-    dJ = zeros(1, S + 1);
+    dJ = zeros(S + 1, 1);
     dJ(1) = 1;
     
     % Common gradient terms for this timestep (to multiply with dJ)
@@ -77,27 +77,29 @@ for t = S+1:T
         J = b_i + I + w(i,:) * h(:,t,m);
         
         eJd = exp(J)*delta;
-        eeJd = exp(-eJd);
-        dQ1 = n(i,t) * 1/(1 - eeJd) * eeJd * eJd * delta;
-        dQ2 = (1 - n(i,t)) * -eJd * delta;
-        dQsum = dQ1 + dQ2;
-        if isnan(dQsum)
-            %warning('NaN in dQsum')
-        else        
-            dQ = dQ + p_weights(t,m) * dQsum;
-        end
-        
-        ddQ1 = -eJd * delta * (1 - n(i,t));
-        ddQ2 = exp(-2*eJd + 2*J) * delta^2 * n(i,t) / (1 - eeJd)^2;
-        ddQ3 = exp(-eJd + J) * delta * n(i,t) / (1 - eeJd);
-        ddQ4 = exp(-eJd + 2*J) * delta^2 * n(i,t) / (1 - eeJd);
-        ddQsum = ddQ1 + ddQ2 + ddQ3 + ddQ4;
-        if isnan(ddQsum)            
-            %warning('NaN in ddQsum')
+        % The expensive computations happen when n(i,t) == 1, which is
+        % rare. Do not compute these values if n(i,t) == 0.
+        if n(i,t)
+            eeJd = exp(-eJd);
+            dQm = n(i,t) * 1/(1 - eeJd) * eeJd * eJd * delta;
+            ddQ2 = exp(-2*eJd + 2*J) * delta^2 / (1 - eeJd)^2;
+            ddQ3 = exp(-eJd + J) * delta / (1 - eeJd);
+            ddQ4 = exp(-eJd + 2*J) * delta^2 / (1 - eeJd);
+            ddQm = ddQ2 + ddQ3 + ddQ4;
+            
+            Qm = log(1 - eeJd);
         else
-            ddQ = ddQ + p_weights(t,m) * ddQsum;
-        end            
-                
+            dQm  = -eJd * delta;
+            ddQm = dQm;
+            
+            Qm = -eJd;
+        end
+        if all(~isnan([Qm dQm ddQm]))
+            q_sum = q_sum + p_weights(t,m) * Qm;
+            dQ    = dQ  + p_weights(t,m) * dQm;
+            ddQ   = ddQ + p_weights(t,m) * ddQm;           
+        end
+
 %         J = b_i + I + w(i,i) * h(i,i,t,m);
 
         
@@ -114,24 +116,16 @@ for t = S+1:T
     %TOOK OUT normpdf BECAUSE NOT DEPENDENT ON PARAMS
 %         history_mean = (1 - delta/tau).*h(i,:,t-1,m) + n(:,t - 1)';
 %         disp(p_weights(t,m));
-        sample_weighted = p_weights(t,m) * (n(i,t)*log(1 - eeJd) + ... %if n(i,t) = 1
-            (1 - n(i,t))*-eJd);% + ... %if n(i,t) = 0
-%                 sum(log(normpdf(h(i,:,t,m),history_mean,sigma))));
-      
-        if isnan(sample_weighted)
-            %warning('NaN in sample_weighted')
-        else
-            q_sum = q_sum + sample_weighted;
-        end
+
 %         if (q_sum == -Inf)
 %             break;
 %         end
 
     end
     
-    % Update the gradient and Hessian with information from this timeslice        
-    g = g + dQ * dJ;
-    H = H + dQ * (dJ*dJ');
+    % Update the gradient and Hessian with information from this timeslice    
+    g = g + dQ * dJ;    
+    H = H + ddQ * (dJ*dJ');
 end
 
 % Add regularization (to the variables only)
@@ -140,10 +134,10 @@ flat_beta_vars = beta_vars(:);
 
 g = -g;
 g(2) = g(2) + reg_param1 * sign(w(i,i));
-g(3:end) = g(3:end) + reg_param2 * sign(flat_beta_vars)';
+g(3:end) = g(3:end) + reg_param2 * sign(flat_beta_vars);
 g
 
-H = -H;
+H = -H
 
 % No regularization for H, since the L1 regularization terms have zero
 % second derivative
