@@ -24,15 +24,16 @@ function [q g H] = q_single_neuron(theta_intrinsic, params, h, n, i, delta, tau,
 % g         gradient at theta_intrinsic
 % H         hessian at theta_intrinsic
 
-beta = params.beta;
+%beta = params.beta;
 % lambda = params.lambda;
 w = params.w;
-S  = size(beta,3) + 1;
+S  = size(params.beta,3) + 1;
 [N, T] = size(n);
+beta = reshape(params.beta(i,:,:), N, S - 1);
 M = size(h,3);
 b_i = theta_intrinsic(1);
 w(i,i) = theta_intrinsic(2);
-beta(i,i,:) = reshape(theta_intrinsic(3:1+S),1,1,S-1);
+beta(i,:) = reshape(theta_intrinsic(3:1+S), 1, S - 1);
 %disp(theta_intrinsic);
 % lambda_i = theta_intrinsic(2+S:2*S+1);
 
@@ -60,19 +61,12 @@ for t = S+1:T
     % Common Jacobian terms for this timestep (to multiply with dJ(n)*dJ(m))
     ddQ = 0;
     
-    I = 0;
-    for s = 2 : S
-        dJ(1+s) = n(i,t-s);
-        I = I + beta(i,:,s-1) * n(:,t-s);
-    end
+    % I doesn't depend on samples, so compute here
+    I_terms = beta .* n(:,(t-2):-1:(t-S));
+    I = sum(I_terms(:));    
     
     for m = 1:M
-        dJ(2) = dJ(2) + p_weights(t,m) * h(i,t,m);
-        
-            %squeeze or reshape here?
-%         I = squeeze(beta(i,:,:),N,S-1) * reshape(n(:,t-S:t-2),N,S-1);
-        
-%         sum(sqeeze(beta(i,:,:),S,N) * ( 
+        dJ(2) = dJ(2) + p_weights(t,m) * h(i,t,m);        
         
         J = b_i + I + w(i,:) * h(:,t,m);
         
