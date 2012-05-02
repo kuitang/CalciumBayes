@@ -70,7 +70,7 @@ switch Sim.P.W
             Sim.W(i,:)=-1*rand(V.Ncells,1);
         end
     case 4 % 20% excitatory interneurons
-        Sim.W=(1-Sim.P.WS)*(rand(V.Ncells)-1)
+        Sim.W=(1-Sim.P.WS)*(rand(V.Ncells)-1);
         for i=1:5:V.Ncells
             Sim.W(i,:)=rand(V.Ncells,1);
         end

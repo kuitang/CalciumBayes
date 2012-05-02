@@ -1,3 +1,5 @@
+clear
+
 %% use the same random number sequence for debugging purposes
 RandStream.setDefaultStream ...
      (RandStream('mt19937ar','seed',2));
@@ -8,14 +10,14 @@ RandStream.setDefaultStream ...
 % truncdata = truncdata(:,1:100);
 % n = truncdata;
 
-load('../data/testdata.mat')
-n = spikes';
+load('05_02_721am_simspikes_subpop.mat')
+n = spikes_subpop';
 
 %% Set physical parameters
 % Physical parameters (TODO: Set up and figure out scale!)
 % Currently using unit (discrete) time and bullshit values
 sigma = 0.5;
-tau = 30;
+tau = 20; %set to match simulator
 delta = 1;
 
 
@@ -26,7 +28,7 @@ M = 50; % size of particle sampler
 
 % Parameter matrices
 % TODO: Set up priors!
-params.beta = zeros(N, N, S-1); % DO WE NEED BETA (N, N, 1)...
+params.beta = zeros(N, N, S-1);
 % params.lambda = ones(N, S);
 params.b = zeros(1, N);
 params.w = zeros(N, N);
@@ -34,7 +36,7 @@ params.w = .1*exprnd(.5,N);
 for i=1:N/5
     params.w(i,:) = -exprnd(2.3,N,1);
 end
-params.w = params.w .* binornd(1,.1,N,N);%second arg is "sparesness"
+params.w = params.w .* binornd(1,.2,N,N);%second arg is "sparesness"
 
 theta_intrinsic_thresh = .01; %???
 
@@ -42,6 +44,8 @@ beta = params.beta;
 % lambda = params.lambda;
 w = params.w;
 b = params.b;
+
+h = zeros(N,N,T,M);
 
 % load('first_e_step_complete.mat');
 % first = 1;
@@ -65,11 +69,11 @@ b = params.b;
         old_theta_intr = ones(size(theta_intrinsic)) * 500;
         
         %% Let the intrinsic parameters converge
-        while( any(abs(theta_intrinsic - old_theta_intr) > .2))
+        while( any(abs(theta_intrinsic - old_theta_intr) > .1))
             %% E step (SMC) for one neuron
             iter = iter + 1;
             old_theta_intr = theta_intrinsic;
-            [p_weights h] = e_step_smc(i, M, tau, delta, sigma, params, n);
+            [p_weights h(i,:,:,:)] = e_step_smc(i, M, tau, delta, sigma, params, n);
 
     %         if(~first)
     %             [p_weights h(i,:,:,:)] = e_step_smc(i, M, tau, delta, sigma, params, n);
@@ -82,10 +86,12 @@ b = params.b;
             %m
             
             %% M step for the intrinsic parameters for one neuron
-            theta_intrinsic = m_step_smc(theta_intrinsic, params, h, n, i, delta, tau, sigma, p_weights);
+            theta_intrinsic = m_step_smc(theta_intrinsic, params, squeeze(h(i,:,:,:)), n, i, delta, tau, sigma, p_weights);
             params.b(i) = theta_intrinsic(1);
             params.w(i,i) = theta_intrinsic(2);
             params.beta(i, i, :) = reshape(theta_intrinsic(3:1+S),1,1,S-1);
+            disp('new params:');
+            disp(theta_intrinsic);
             disp('abs diff of params');
             disp(abs(theta_intrinsic - old_theta_intr));
 %             params.lambda(i,:) = theta_intrinsic(3+S:2*S+2);
@@ -101,7 +107,7 @@ b = params.b;
 
         
         %% Compute the new log-likelihood        
-        save('new_m_step_complete.mat');
+%         save('new_m_step_complete.mat');
                 
         nll = log_likelihood(params, h, n, delta, p_weights);
         ll = [ll nll];

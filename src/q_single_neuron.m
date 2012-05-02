@@ -135,9 +135,9 @@ flat_beta_vars = beta_vars(:);
 g = -g;
 g(2) = g(2) + reg_param1 * sign(w(i,i));
 g(3:end) = g(3:end) + reg_param2 * sign(flat_beta_vars);
-g
 
-H = -H
+
+H = -H;
 
 % No regularization for H, since the L1 regularization terms have zero
 % second derivative

@@ -1,6 +1,8 @@
 function ll = log_likelihood(params, h, n, delta, p_weights)
 
-error('TODO: Fix the log_likelihood interface to only use the history terms of one neuron at a time')
+% error('TODO: Fix the log_likelihood interface to only use the history
+% terms of one neuron at a time')
+% isn't this already the case??
 
 %log(P(data | params))
 
