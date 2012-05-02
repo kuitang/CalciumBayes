@@ -11,7 +11,7 @@ RandStream.setDefaultStream ...
 % n = truncdata;
 
 load('good_sim_data_01.mat')
-n = sim.n;
+n = sim.n(1:10,:);
 
 %% Set physical parameters
 % Physical parameters (TODO: Set up and figure out scale!)
