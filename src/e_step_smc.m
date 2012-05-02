@@ -5,7 +5,7 @@ function [ pb h ] = e_step_smc( i, M, tau, delta, sigma, params, data )
 %   tau - decay time constant (scalar)
 %   delta - discrete time interval size (scalar)
 %   sigma - noise standard deviation (scalar)
-%   beta - higher order interaction (N x N x S)
+%   beta - higher order interaction for this neuron (N x S)
 %   lambda - indirect influences (N x S)
 %   b - baseline rates (1 x N)
 %   w - connectivity matrix (N x N)
@@ -14,13 +14,13 @@ function [ pb h ] = e_step_smc( i, M, tau, delta, sigma, params, data )
 %   pb - backward sample weights (T x M)
 %   h - samples (N x T x M)
 
-beta = params.beta;
+[N, T] = size(data);
+S = size(params.beta,3) + 1;
+beta = reshape(params.beta(i,:,:), N, S - 1);
+
 % lambda = params.lambda;
 w = params.w;
 b = params.b;
-
-S = size(beta,2) + 1;
-[N, T] = size(data);
 
 sd = sigma*sqrt(delta);
 
@@ -48,15 +48,14 @@ for t = S+2 : T
         %sampler" - just as well though - apprently just less efficient but
         %I haven't figured out how to sample from conditional for one-ahead
         h_mean = (1 - delta/tau) * h(:,t-1,m) + data(:,t-1);        
-        h(:,t,m) = normrnd(h_mean, sd);        
+        % normrnd wastes time error-checking        
+        %h(:,t,m) = normrnd(h_mean, sd);        
+        h(:,t,m) = randn(N, 1) * sd + h_mean;
 
         % Compute J
-        I = 0;
-
-        for s = 1 : S-1
-            I = I + beta(i,:,s) * data(:,t-(s+1)); %took out lambda
-        end
-      
+        I_terms = beta .* data(:,(t-2):-1:(t-S));
+        I = sum(I_terms(:));
+     
         J = b(i) + I + w(i,:) * h(:,t,m);
 
         % Compute probabilities
@@ -122,7 +121,8 @@ for t_index = 0:(T-S-2)
         % N x M
 %        h_means   = bsxfun(@plus, (1 - delta/tau) * squeeze(h(:,t-1,:)), data(:,t-1));
 %        distances = bsxfun(@minus, h(:,t,m), h_means);
-        distances   = bsxfun(@plus, (1 - delta/tau) * squeeze(h(:,t-1,:)), data(:,t-1) - h(:,t,m));
+        h_squeezed = reshape(h(:,t-1,:), N, M);
+        distances   = bsxfun(@plus, (1 - delta/tau) * h_squeezed, data(:,t-1) - h(:,t,m));
         distances_sq = sum(distances .^ 2, 1);
         num_terms = exp(-0.5 * sd^-2 * distances_sq) .* pf(t-1,:);
         
@@ -159,7 +159,7 @@ end
 sample_expectation_mean = zeros(1, T);
 for t = 1 : T
     % h is N x T x M => squeeze(h(:,t,:))' is M * N
-    sample_expectation_mean(t) = mean(pb(t,:) * squeeze(h(:,t,:))');
+    sample_expectation_mean(t) = mean(pb(t,:) * reshape(h(:,t,:), M, N));
 end
 figure
 hold on
