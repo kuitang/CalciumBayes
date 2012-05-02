@@ -102,23 +102,28 @@ r = zeros(M, M);
 pb = zeros(T,M);
 pb(T,:) = pf(T,:);
 
+% Determinant of a diagonal matrix is the product of its diagonal elements.
+% But here our diagonal is also constant.
+%normpdf_normalizer = (2*pi)^(N/2) * (N*sd^2)^(-.5);
+
 for t_index = 0:(T-S-2)
     
     t = T - t_index;
     
     % Equations (12) and (13) in [Mischenko11]
     for m = 1 : M
-        sigma_mat = sd^2*eye(N);
+        %sigma_mat = sd^2*eye(N);
 %         prob = zeros(M,1);
         num_terms = zeros(M,1);
 %         denom = 0;
 %         denom1 = 0;
         for mm = 1 : M
             h_mean = (1 - delta/tau) * h(:,t-1,mm) + data(:,t-1);
-            distance = h(:,t,m) - h_mean;       
-            num_terms(mm) = (2*pi)^(-N/2)*det(sigma_mat)^(-.5) * ...
-                exp(-.5 * (distance' * inv(sigma_mat) * distance)) * ...
-                pf(t-1,mm);
+            distance = h(:,t,m) - h_mean;
+            % Don't bother with matrices; we have sigma * I form covariance
+            % Don't even need normalization, since we explicitly normalize
+            % at the end anyways.
+            num_terms(mm) = exp(-0.5 * sd^-2 * (distance'*distance)) * pf(t-1,mm);
             
             % BS TOOK OUT MVNPDF TO SAVE TIME... CAN BE SLOW, TOO MUCH
             % OVERHEAD
@@ -131,14 +136,7 @@ for t_index = 0:(T-S-2)
 %             denom = denom + mvnpdf(h(:,t,m), h(:,t-1,mm), sd^2*eye(N)) * pf(t-1,mm);
             
         end        
-        for mm = 1 : M
-            
-%             numer = mvnpdf(h(:,t,m), h(:,t-1,mm), sd^2*eye(N)) * pf(t-1, m);
-            r(m, mm) = pb(t, m) * num_terms(mm) / sum(num_terms);  
-%             disp(r(m,mm));
-%             disp(pb(t, m) * prob(mm) / sum(prob));
-
-        end        
+        r(m,:) = pb(t,m) * num_terms / sum(num_terms);      
     end
     
     pb(t-1,:) = sum(r, 1);%sum over 1 or 2 here? I THINK 1 - BS
