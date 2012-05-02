@@ -35,7 +35,7 @@ pf = ones(T, M) / M;
 h(:,S+1,:) = normrnd(0, sd, N, M);
 
 % Now draw samples using modified Equation (11) in [Mischenko11]
-lastspike = -S;
+%lastspike = -S;
 % should start at S + 2
 for t = S+2 : T 
     % Sequential importance resampling    
@@ -84,13 +84,13 @@ for t = S+2 : T
         pf(t, :) = ones(1, M) / M;
     end
     
-    if data(i,t)
-        lastspike = t;
-    end
-    if t <= lastspike + S
-        E = pf(t, :) * squeeze(h(:,t,:))' / M;
-        disp(['t = ' num2str(t) ' spike = ' num2str(data(i,t)) ' sample expectation norm ' num2str(norm(E))]);
-    end
+%     if data(i,t)
+%         lastspike = t;
+%     end
+%     if t <= lastspike + S
+%         E = pf(t, :) * squeeze(h(:,t,:))' / M;
+%         disp(['t = ' num2str(t) ' spike = ' num2str(data(i,t)) ' sample expectation norm ' num2str(norm(E))]);
+%     end
 
 end
 
@@ -114,30 +114,40 @@ for t_index = 0:(T-S-2)
     for m = 1 : M
         %sigma_mat = sd^2*eye(N);
 %         prob = zeros(M,1);
-        num_terms = zeros(M,1);
+%        num_terms = zeros(M,1);
 %         denom = 0;
 %         denom1 = 0;
-        for mm = 1 : M
-            % hottest line (83/180 secs)
-            h_mean = (1 - delta/tau) * h(:,t-1,mm) + data(:,t-1);
-            % third hottest line (25/180 secs)
-            distance = h(:,t,m) - h_mean;
-            % Don't bother with matrices; we have sigma * I form covariance
-            % Don't even need normalization, since we explicitly normalize
-            % at the end anyways.
-            num_terms(mm) = exp(-0.5 * sd^-2 * (distance'*distance)) * pf(t-1,mm);
-            
-            % BS TOOK OUT MVNPDF TO SAVE TIME... CAN BE SLOW, TOO MUCH
-            % OVERHEAD
-%             if (m == mm)
-%                 disp(['explicit:' num2str(mvnp)]);
-%                 disp(mvnpdf(h(:,t,m), h(:,t-1,mm), sd^2*eye(N)));
-%             end
-%             disp(['first test ' num2str(mvnp == mvnpdf(h(:,t,m), h(:,t-1,mm), sd^2*eye(N)))]);
-%             denom1 = denom1 +  mvnp(mm) * pf(t-1,mm);
-%             denom = denom + mvnpdf(h(:,t,m), h(:,t-1,mm), sd^2*eye(N)) * pf(t-1,mm);
-            
-        end        
+        
+        % KT -- vectorized the inner loop and verified equivalent results
+        % N x M
+%        h_means   = bsxfun(@plus, (1 - delta/tau) * squeeze(h(:,t-1,:)), data(:,t-1));
+%        distances = bsxfun(@minus, h(:,t,m), h_means);
+        distances   = bsxfun(@plus, (1 - delta/tau) * squeeze(h(:,t-1,:)), data(:,t-1) - h(:,t,m));
+        distances_sq = sum(distances .^ 2, 1);
+        num_terms = exp(-0.5 * sd^-2 * distances_sq) .* pf(t-1,:);
+        
+%         for mm = 1 : M
+%             % hottest line (83/180 secs)
+%             h_mean = (1 - delta/tau) * h(:,t-1,mm) + data(:,t-1);
+%             % third hottest line (25/180 secs)
+%             distance = h(:,t,m) - h_mean;
+%             % Don't bother with matrices; we have sigma * I form covariance
+%             % Don't even need normalization, since we explicitly normalize
+%             % at the end anyways.
+%             distance'*distance
+%             num_terms(mm) = exp(-0.5 * sd^-2 * (distance'*distance)) * pf(t-1,mm);
+%             
+%             % BS TOOK OUT MVNPDF TO SAVE TIME... CAN BE SLOW, TOO MUCH
+%             % OVERHEAD
+% %             if (m == mm)
+% %                 disp(['explicit:' num2str(mvnp)]);
+% %                 disp(mvnpdf(h(:,t,m), h(:,t-1,mm), sd^2*eye(N)));
+% %             end
+% %             disp(['first test ' num2str(mvnp == mvnpdf(h(:,t,m), h(:,t-1,mm), sd^2*eye(N)))]);
+% %             denom1 = denom1 +  mvnp(mm) * pf(t-1,mm);
+% %             denom = denom + mvnpdf(h(:,t,m), h(:,t-1,mm), sd^2*eye(N)) * pf(t-1,mm);
+%             
+%         end        
         r(m,:) = pb(t,m) * num_terms / sum(num_terms);      
     end
     
@@ -145,5 +155,16 @@ for t_index = 0:(T-S-2)
     
     pb(t-1,:) = pb(t-1,:) / sum(pb(t-1,:)) ;
 end
+
+sample_expectation_mean = zeros(1, T);
+for t = 1 : T
+    % h is N x T x M => squeeze(h(:,t,:))' is M * N
+    sample_expectation_mean(t) = mean(pb(t,:) * squeeze(h(:,t,:))');
+end
+figure
+hold on
+plot(sample_expectation_mean)
+scatter(1:T, data(i,:))
+drawnow
 
 end

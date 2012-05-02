@@ -16,9 +16,10 @@ n = spikes_subpop';
 %% Set physical parameters
 % Physical parameters (TODO: Set up and figure out scale!)
 % Currently using unit (discrete) time and bullshit values
-sigma = 0.5;
-tau = 20; %set to match simulator
-delta = 1;
+%sigma = 0.01;
+sigma = 1e-14;
+tau = .020; %set to match simulator
+delta = .001;
 
 
 
