@@ -93,8 +93,10 @@ b = params.b;
 %         disp(abs(theta_intrinsic - old_theta_intr));
 %         disp(sum(abs(theta_intrinsic - old_theta_intr)));
         
-        while(sum(abs(theta_intrinsic - old_theta_intr)) > .01)
-            
+%         while(sum(abs(theta_intrinsic - old_theta_intr)) > .01) %we shoudl make this bigger...
+            %... maybe this: abs(theta_intrinsic - old_theta_intr) > .01
+            %... that is, don't sum, just test each one
+         while( any(abs(theta_intrinsic - old_theta_intr) > .2))
             iter = iter + 1;
             old_theta_intr = theta_intrinsic;
             
@@ -108,7 +110,7 @@ b = params.b;
             params.w(i,i) = theta_intrinsic(2);
             params.beta(i, i, :) = reshape(theta_intrinsic(3:1+S),1,1,S-1);
             disp('abs diff of params');
-            disp(sum(abs(theta_intrinsic - old_theta_intr)));
+            disp(abs(theta_intrinsic - old_theta_intr));
 %             params.lambda(i,:) = theta_intrinsic(3+S:2*S+2);
 
             nll = log_likelihood(params, h, n, delta, p_weights);
