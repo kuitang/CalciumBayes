@@ -3,7 +3,8 @@ function [theta_intrinsic] = m_step_smc(theta_intrinsic, params, h, n, i, delta,
 
     options = optimset('LargeScale','off');
     options = optimset(options,'Display','iter');
-    options = optimset(options,'Algorithm','interior-point');
+    options = optimset(options,'Algorithm','trust-region-reflective');
+    options = optimset(options,'Hessian','user-supplied');
     options = optimset(options,'TolFun',.5);
     options = optimset(options,'MaxIter',3);
 

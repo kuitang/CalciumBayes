@@ -1,4 +1,4 @@
-function q = q_single_neuron(theta_intrinsic, params, h, n, i, delta, tau, sigma, p_weights)
+function [q g H] = q_single_neuron(theta_intrinsic, params, h, n, i, delta, tau, sigma, p_weights)
 
 %Q_SINGLE_NEURON 
 % This evaluates the negative of the q function of the EM algorithm for our
@@ -19,50 +19,72 @@ function q = q_single_neuron(theta_intrinsic, params, h, n, i, delta, tau, sigma
 % n         N X T matrix of all observed spikes
 % i         the index of this neuron
 
-
+% Returns
+% q         expectation at theta_intrinsic
+% g         gradient at theta_intrinsic
+% H         hessian at theta_intrinsic
 
 beta = params.beta;
 % lambda = params.lambda;
 w = params.w;
 S  = size(beta,3) + 1;
 [N, T] = size(n);
-M = size(h,4);
+M = size(h,3);
 b_i = theta_intrinsic(1);
 w(i,i) = theta_intrinsic(2);
 beta(i,i,:) = reshape(theta_intrinsic(3:1+S),1,1,S-1);
 disp(theta_intrinsic);
 % lambda_i = theta_intrinsic(2+S:2*S+1);
 
-
 reg_param1 = 1e1;
 reg_param2 = 1e1;
 q_sum = 0;
 
+g = zeros(1, S + 1);
+H = zeros(S + 1, S + 1);
+
 disp('running objective function');
 
-for m = 1:M
+for t = S+1:T    
+    % Partial derivatives of J
+    % dJ(1) = dJ_i/db_i = 1
+    % dJ(2) = DJ_i/dw_{ii} = h_{ii}(t)
+    dJ = zeros(S + 1, 1);
+    dJ(1) = 1;
     
-%     sample_sum = 0;
+    % Common gradient terms for this timestep (to multiply with dJ)
+    % Both these techniques work due to distributive property
+    dQ = 0;
+    % Common Jacobian terms for this timestep (to multiply with dJ(n)*dJ(m))
+    ddQ = 0;
     
-    for t = S+1:T
+    I = 0;
+    for s = 2 : S
+        dJ(1+s) = n(i,t-s);
+        I = I + beta(i,:,s-1) * n(:,t-s);
+    end
+    
+    for m = 1:M
+        dJ(2) = dJ(2) + p_weights(t,m) * h(i,t,m);
         
-        I = 0;
-
-        for s = 1 : S-1
-               
-            I = I + beta(i,:,s) * n(:,t-(s+1));
-           
-        end
-
             %squeeze or reshape here?
 %         I = squeeze(beta(i,:,:),N,S-1) * reshape(n(:,t-S:t-2),N,S-1);
         
-        
-        
 %         sum(sqeeze(beta(i,:,:),S,N) * ( 
-
         
-        J = b_i + I + reshape(w(i,:),1,N) * reshape(h(i,:,t,m),N,1);
+        J = b_i + I + w(i,:) * h(:,t,m);
+        
+        eJd = exp(J)*delta;
+        dQ1 = n(i,t) * 1/(1 - exp(-eJd)) * exp(-eJd) * eJd * delta;
+        dQ2 = (1 - n(i,t)) * -eJd * delta;             
+        dQ = dQ + p_weights(t,m) * (dQ1 + dQ2);
+        
+        ddQ1 = -eJd * delta * (1 - n(i,t));
+        ddQ2 = exp(-2*eJd + 2*J) * delta^2 * n(i,t) / (1 - exp(-eJd))^2;
+        ddQ3 = exp(-eJd + J) * delta * n(i,t) / (1 - exp(-eJd));
+        ddQ4 = exp(-eJd + 2*J) * delta^2 * n(i,t) / (1 - exp(-eJd));
+        ddQ = ddQ + p_weights(t,m) * (ddQ1 + ddQ2 + ddQ3 + ddQ4);        
+                
 %         J = b_i + I + w(i,i) * h(i,i,t,m);
 
         
@@ -91,7 +113,24 @@ for m = 1:M
 %         end
 
     end
+    
+    % Update the gradient and Hessian with information from this timeslice
+    g = g + dQ * dJ;
+    H = H + dQ * (dJ*dJ');
 end
 
-q = -q_sum + reg_param1 * sum(sum(abs(w))) + reg_param2 * sum(sum(sum(abs(beta))))
+% Add regularization (to the variables only)
+beta_vars = beta(i,i,:);
+flat_beta_vars = beta_vars(:);
+
+g = -g;
+g(2) = g(2) + reg_param1 * sign(w);
+g(3:end) = g(3:end) + reg_param2 * sign(flat_beta_subset);
+
+H = -H;
+
+% No regularization for H, since the L1 regularization terms have zero
+% second derivative
+
+q = -q_sum + reg_param1 * abs(w(i,i)) + reg_param2 * sum(abs(flat_beta_vars));
 

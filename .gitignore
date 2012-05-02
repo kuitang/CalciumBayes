@@ -26,3 +26,7 @@
 
 # Data
 data/*
+
+# MATLAB backups
+*~
+

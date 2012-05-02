@@ -1,0 +1,441 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 8.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       157,          7]
+NotebookDataLength[     12711,        431]
+NotebookOptionsPosition[     12173,        408]
+NotebookOutlinePosition[     12529,        424]
+CellTagsIndexPosition[     12486,        421]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"p", "[", 
+   RowBox[{"x1_", ",", "x2_"}], "]"}], ":=", 
+  RowBox[{"1", "-", 
+   RowBox[{"Exp", "[", 
+    RowBox[{
+     RowBox[{"-", 
+      RowBox[{"Exp", "[", 
+       RowBox[{
+        RowBox[{"J", "[", "t", "]"}], "[", 
+        RowBox[{"x1", ",", "x2"}], "]"}], "]"}]}], "*", "\[CapitalDelta]"}], 
+    "]"}]}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"Q", "[", 
+   RowBox[{"x1_", ",", "x2_"}], "]"}], ":=", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"n", "[", "t", "]"}], "*", 
+    RowBox[{"Log", "[", 
+     RowBox[{"p", "[", 
+      RowBox[{"x1", ",", "x2"}], "]"}], "]"}]}], "+", 
+   RowBox[{
+    RowBox[{"(", 
+     RowBox[{"1", "-", 
+      RowBox[{"n", "[", "t", "]"}]}], ")"}], "*", 
+    RowBox[{"Log", "[", 
+     RowBox[{"1", "-", 
+      RowBox[{"p", "[", 
+       RowBox[{"x1", ",", "x2"}], "]"}]}], "]"}]}]}]}], "\[IndentingNewLine]", 
+ RowBox[{"D", "[", 
+  RowBox[{
+   RowBox[{"D", "[", 
+    RowBox[{
+     RowBox[{"Q", "[", 
+      RowBox[{"x1", ",", "x2"}], "]"}], ",", "x1"}], "]"}], ",", "x2"}], 
+  "]"}]}], "Input",
+ CellChangeTimes->{{3.5449181709400177`*^9, 3.5449182046733418`*^9}, {
+  3.54491862512062*^9, 3.5449186480644093`*^9}, {3.544921648098359*^9, 
+  3.544921696950474*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"-", 
+    SuperscriptBox["\[ExponentialE]", 
+     RowBox[{
+      RowBox[{"J", "[", "t", "]"}], "[", 
+      RowBox[{"x1", ",", "x2"}], "]"}]]}], " ", "\[CapitalDelta]", " ", 
+   RowBox[{"(", 
+    RowBox[{"1", "-", 
+     RowBox[{"n", "[", "t", "]"}]}], ")"}], " ", 
+   RowBox[{
+    SuperscriptBox[
+     RowBox[{"J", "[", "t", "]"}], 
+     TagBox[
+      RowBox[{"(", 
+       RowBox[{"0", ",", "1"}], ")"}],
+      Derivative],
+     MultilineFunction->None], "[", 
+    RowBox[{"x1", ",", "x2"}], "]"}], " ", 
+   RowBox[{
+    SuperscriptBox[
+     RowBox[{"J", "[", "t", "]"}], 
+     TagBox[
+      RowBox[{"(", 
+       RowBox[{"1", ",", "0"}], ")"}],
+      Derivative],
+     MultilineFunction->None], "[", 
+    RowBox[{"x1", ",", "x2"}], "]"}]}], "-", 
+  FractionBox[
+   RowBox[{
+    SuperscriptBox["\[ExponentialE]", 
+     RowBox[{
+      RowBox[{
+       RowBox[{"-", "2"}], " ", 
+       SuperscriptBox["\[ExponentialE]", 
+        RowBox[{
+         RowBox[{"J", "[", "t", "]"}], "[", 
+         RowBox[{"x1", ",", "x2"}], "]"}]], " ", "\[CapitalDelta]"}], "+", 
+      RowBox[{"2", " ", 
+       RowBox[{
+        RowBox[{"J", "[", "t", "]"}], "[", 
+        RowBox[{"x1", ",", "x2"}], "]"}]}]}]], " ", 
+    SuperscriptBox["\[CapitalDelta]", "2"], " ", 
+    RowBox[{"n", "[", "t", "]"}], " ", 
+    RowBox[{
+     SuperscriptBox[
+      RowBox[{"J", "[", "t", "]"}], 
+      TagBox[
+       RowBox[{"(", 
+        RowBox[{"0", ",", "1"}], ")"}],
+       Derivative],
+      MultilineFunction->None], "[", 
+     RowBox[{"x1", ",", "x2"}], "]"}], " ", 
+    RowBox[{
+     SuperscriptBox[
+      RowBox[{"J", "[", "t", "]"}], 
+      TagBox[
+       RowBox[{"(", 
+        RowBox[{"1", ",", "0"}], ")"}],
+       Derivative],
+      MultilineFunction->None], "[", 
+     RowBox[{"x1", ",", "x2"}], "]"}]}], 
+   SuperscriptBox[
+    RowBox[{"(", 
+     RowBox[{"1", "-", 
+      SuperscriptBox["\[ExponentialE]", 
+       RowBox[{
+        RowBox[{"-", 
+         SuperscriptBox["\[ExponentialE]", 
+          RowBox[{
+           RowBox[{"J", "[", "t", "]"}], "[", 
+           RowBox[{"x1", ",", "x2"}], "]"}]]}], " ", "\[CapitalDelta]"}]]}], 
+     ")"}], "2"]], "+", 
+  RowBox[{
+   FractionBox["1", 
+    RowBox[{"1", "-", 
+     SuperscriptBox["\[ExponentialE]", 
+      RowBox[{
+       RowBox[{"-", 
+        SuperscriptBox["\[ExponentialE]", 
+         RowBox[{
+          RowBox[{"J", "[", "t", "]"}], "[", 
+          RowBox[{"x1", ",", "x2"}], "]"}]]}], " ", "\[CapitalDelta]"}]]}]], 
+   RowBox[{
+    SuperscriptBox["\[ExponentialE]", 
+     RowBox[{
+      RowBox[{
+       RowBox[{"-", 
+        SuperscriptBox["\[ExponentialE]", 
+         RowBox[{
+          RowBox[{"J", "[", "t", "]"}], "[", 
+          RowBox[{"x1", ",", "x2"}], "]"}]]}], " ", "\[CapitalDelta]"}], "+", 
+      
+      RowBox[{
+       RowBox[{"J", "[", "t", "]"}], "[", 
+       RowBox[{"x1", ",", "x2"}], "]"}]}]], " ", "\[CapitalDelta]", " ", 
+    RowBox[{"n", "[", "t", "]"}], " ", 
+    RowBox[{"(", 
+     RowBox[{
+      RowBox[{
+       SuperscriptBox[
+        RowBox[{"J", "[", "t", "]"}], 
+        TagBox[
+         RowBox[{"(", 
+          RowBox[{"0", ",", "1"}], ")"}],
+         Derivative],
+        MultilineFunction->None], "[", 
+       RowBox[{"x1", ",", "x2"}], "]"}], "-", 
+      RowBox[{
+       SuperscriptBox["\[ExponentialE]", 
+        RowBox[{
+         RowBox[{"J", "[", "t", "]"}], "[", 
+         RowBox[{"x1", ",", "x2"}], "]"}]], " ", "\[CapitalDelta]", " ", 
+       RowBox[{
+        SuperscriptBox[
+         RowBox[{"J", "[", "t", "]"}], 
+         TagBox[
+          RowBox[{"(", 
+           RowBox[{"0", ",", "1"}], ")"}],
+          Derivative],
+         MultilineFunction->None], "[", 
+        RowBox[{"x1", ",", "x2"}], "]"}]}]}], ")"}], " ", 
+    RowBox[{
+     SuperscriptBox[
+      RowBox[{"J", "[", "t", "]"}], 
+      TagBox[
+       RowBox[{"(", 
+        RowBox[{"1", ",", "0"}], ")"}],
+       Derivative],
+      MultilineFunction->None], "[", 
+     RowBox[{"x1", ",", "x2"}], "]"}]}]}], "-", 
+  RowBox[{
+   SuperscriptBox["\[ExponentialE]", 
+    RowBox[{
+     RowBox[{"J", "[", "t", "]"}], "[", 
+     RowBox[{"x1", ",", "x2"}], "]"}]], " ", "\[CapitalDelta]", " ", 
+   RowBox[{"(", 
+    RowBox[{"1", "-", 
+     RowBox[{"n", "[", "t", "]"}]}], ")"}], " ", 
+   RowBox[{
+    SuperscriptBox[
+     RowBox[{"J", "[", "t", "]"}], 
+     TagBox[
+      RowBox[{"(", 
+       RowBox[{"1", ",", "1"}], ")"}],
+      Derivative],
+     MultilineFunction->None], "[", 
+    RowBox[{"x1", ",", "x2"}], "]"}]}], "+", 
+  FractionBox[
+   RowBox[{
+    SuperscriptBox["\[ExponentialE]", 
+     RowBox[{
+      RowBox[{
+       RowBox[{"-", 
+        SuperscriptBox["\[ExponentialE]", 
+         RowBox[{
+          RowBox[{"J", "[", "t", "]"}], "[", 
+          RowBox[{"x1", ",", "x2"}], "]"}]]}], " ", "\[CapitalDelta]"}], "+", 
+      
+      RowBox[{
+       RowBox[{"J", "[", "t", "]"}], "[", 
+       RowBox[{"x1", ",", "x2"}], "]"}]}]], " ", "\[CapitalDelta]", " ", 
+    RowBox[{"n", "[", "t", "]"}], " ", 
+    RowBox[{
+     SuperscriptBox[
+      RowBox[{"J", "[", "t", "]"}], 
+      TagBox[
+       RowBox[{"(", 
+        RowBox[{"1", ",", "1"}], ")"}],
+       Derivative],
+      MultilineFunction->None], "[", 
+     RowBox[{"x1", ",", "x2"}], "]"}]}], 
+   RowBox[{"1", "-", 
+    SuperscriptBox["\[ExponentialE]", 
+     RowBox[{
+      RowBox[{"-", 
+       SuperscriptBox["\[ExponentialE]", 
+        RowBox[{
+         RowBox[{"J", "[", "t", "]"}], "[", 
+         RowBox[{"x1", ",", "x2"}], "]"}]]}], " ", 
+      "\[CapitalDelta]"}]]}]]}]], "Output",
+ CellChangeTimes->{{3.544918660415722*^9, 3.544918692534127*^9}, {
+  3.544921656748171*^9, 3.544921697198718*^9}}]
+}, Open  ]],
+
+Cell[BoxData[""], "Input",
+ CellChangeTimes->{
+  3.544918538600712*^9, {3.5449186645503263`*^9, 3.544918666920601*^9}}],
+
+Cell[BoxData[""], "DisplayFormula"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Expand", "[", 
+  RowBox[{
+   FractionBox["1", 
+    RowBox[{"1", "-", 
+     SuperscriptBox["\[ExponentialE]", 
+      RowBox[{
+       RowBox[{"-", 
+        SuperscriptBox["\[ExponentialE]", 
+         RowBox[{
+          RowBox[{"J", "[", "t", "]"}], "[", 
+          RowBox[{"x1", ",", "x2"}], "]"}]]}], " ", "\[CapitalDelta]"}]]}]], 
+   SuperscriptBox["\[ExponentialE]", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"-", 
+       SuperscriptBox["\[ExponentialE]", 
+        RowBox[{
+         RowBox[{"J", "[", "t", "]"}], "[", 
+         RowBox[{"x1", ",", "x2"}], "]"}]]}], " ", "\[CapitalDelta]"}], "+", 
+     RowBox[{
+      RowBox[{"J", "[", "t", "]"}], "[", 
+      RowBox[{"x1", ",", "x2"}], "]"}]}]], " ", "\[CapitalDelta]", " ", 
+   RowBox[{"n", "[", "t", "]"}], " ", 
+   RowBox[{"(", 
+    RowBox[{
+     RowBox[{
+      SuperscriptBox[
+       RowBox[{"J", "[", "t", "]"}], 
+       TagBox[
+        RowBox[{"(", 
+         RowBox[{"0", ",", "1"}], ")"}],
+        Derivative],
+       MultilineFunction->None], "[", 
+      RowBox[{"x1", ",", "x2"}], "]"}], "-", 
+     RowBox[{
+      SuperscriptBox["\[ExponentialE]", 
+       RowBox[{
+        RowBox[{"J", "[", "t", "]"}], "[", 
+        RowBox[{"x1", ",", "x2"}], "]"}]], " ", "\[CapitalDelta]", " ", 
+      RowBox[{
+       SuperscriptBox[
+        RowBox[{"J", "[", "t", "]"}], 
+        TagBox[
+         RowBox[{"(", 
+          RowBox[{"0", ",", "1"}], ")"}],
+         Derivative],
+        MultilineFunction->None], "[", 
+       RowBox[{"x1", ",", "x2"}], "]"}]}]}], ")"}], " ", 
+   RowBox[{
+    SuperscriptBox[
+     RowBox[{"J", "[", "t", "]"}], 
+     TagBox[
+      RowBox[{"(", 
+       RowBox[{"1", ",", "0"}], ")"}],
+      Derivative],
+     MultilineFunction->None], "[", 
+    RowBox[{"x1", ",", "x2"}], "]"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.5449215345284443`*^9, 3.544921536097597*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  FractionBox[
+   RowBox[{
+    SuperscriptBox["\[ExponentialE]", 
+     RowBox[{
+      RowBox[{
+       RowBox[{"-", 
+        SuperscriptBox["\[ExponentialE]", 
+         RowBox[{
+          RowBox[{"J", "[", "t", "]"}], "[", 
+          RowBox[{"x1", ",", "x2"}], "]"}]]}], " ", "\[CapitalDelta]"}], "+", 
+      
+      RowBox[{
+       RowBox[{"J", "[", "t", "]"}], "[", 
+       RowBox[{"x1", ",", "x2"}], "]"}]}]], " ", "\[CapitalDelta]", " ", 
+    RowBox[{"n", "[", "t", "]"}], " ", 
+    RowBox[{
+     SuperscriptBox[
+      RowBox[{"J", "[", "t", "]"}], 
+      TagBox[
+       RowBox[{"(", 
+        RowBox[{"0", ",", "1"}], ")"}],
+       Derivative],
+      MultilineFunction->None], "[", 
+     RowBox[{"x1", ",", "x2"}], "]"}], " ", 
+    RowBox[{
+     SuperscriptBox[
+      RowBox[{"J", "[", "t", "]"}], 
+      TagBox[
+       RowBox[{"(", 
+        RowBox[{"1", ",", "0"}], ")"}],
+       Derivative],
+      MultilineFunction->None], "[", 
+     RowBox[{"x1", ",", "x2"}], "]"}]}], 
+   RowBox[{"1", "-", 
+    SuperscriptBox["\[ExponentialE]", 
+     RowBox[{
+      RowBox[{"-", 
+       SuperscriptBox["\[ExponentialE]", 
+        RowBox[{
+         RowBox[{"J", "[", "t", "]"}], "[", 
+         RowBox[{"x1", ",", "x2"}], "]"}]]}], " ", "\[CapitalDelta]"}]]}]], 
+  "-", 
+  FractionBox[
+   RowBox[{
+    SuperscriptBox["\[ExponentialE]", 
+     RowBox[{
+      RowBox[{
+       RowBox[{"-", 
+        SuperscriptBox["\[ExponentialE]", 
+         RowBox[{
+          RowBox[{"J", "[", "t", "]"}], "[", 
+          RowBox[{"x1", ",", "x2"}], "]"}]]}], " ", "\[CapitalDelta]"}], "+", 
+      
+      RowBox[{"2", " ", 
+       RowBox[{
+        RowBox[{"J", "[", "t", "]"}], "[", 
+        RowBox[{"x1", ",", "x2"}], "]"}]}]}]], " ", 
+    SuperscriptBox["\[CapitalDelta]", "2"], " ", 
+    RowBox[{"n", "[", "t", "]"}], " ", 
+    RowBox[{
+     SuperscriptBox[
+      RowBox[{"J", "[", "t", "]"}], 
+      TagBox[
+       RowBox[{"(", 
+        RowBox[{"0", ",", "1"}], ")"}],
+       Derivative],
+      MultilineFunction->None], "[", 
+     RowBox[{"x1", ",", "x2"}], "]"}], " ", 
+    RowBox[{
+     SuperscriptBox[
+      RowBox[{"J", "[", "t", "]"}], 
+      TagBox[
+       RowBox[{"(", 
+        RowBox[{"1", ",", "0"}], ")"}],
+       Derivative],
+      MultilineFunction->None], "[", 
+     RowBox[{"x1", ",", "x2"}], "]"}]}], 
+   RowBox[{"1", "-", 
+    SuperscriptBox["\[ExponentialE]", 
+     RowBox[{
+      RowBox[{"-", 
+       SuperscriptBox["\[ExponentialE]", 
+        RowBox[{
+         RowBox[{"J", "[", "t", "]"}], "[", 
+         RowBox[{"x1", ",", "x2"}], "]"}]]}], " ", 
+      "\[CapitalDelta]"}]]}]]}]], "Output",
+ CellChangeTimes->{3.544921536517774*^9}]
+}, Open  ]]
+},
+WindowSize->{740, 752},
+WindowMargins->{{Automatic, -20}, {Automatic, 5}},
+FrontEndVersion->"8.0 for Mac OS X x86 (32-bit, 64-bit Kernel) (November 6, \
+2010)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[579, 22, 1228, 39, 58, "Input"],
+Cell[1810, 63, 5631, 183, 205, "Output"]
+}, Open  ]],
+Cell[7456, 249, 119, 2, 27, InheritFromParent],
+Cell[7578, 253, 35, 0, 20, "DisplayFormula"],
+Cell[CellGroupData[{
+Cell[7638, 257, 1864, 58, 80, "Input"],
+Cell[9505, 317, 2652, 88, 111, "Output"]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)
+
