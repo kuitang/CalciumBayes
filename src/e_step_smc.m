@@ -38,7 +38,12 @@ h(:,S+1,:) = normrnd(0, sd, N, M);
 %lastspike = -S;
 % should start at S + 2
 for t = S+2 : T 
-    % Sequential importance resampling    
+    % Sequential importance resampling
+    
+    % I doesn't depend on samples, so compute here
+    I_terms = beta .* data(:,(t-2):-1:(t-S));
+    I = sum(I_terms(:));
+    
     for m = 1 : M
         % Draw from the one-step-ahead proposal
         % Draw a new history term from the proposal (transition)
@@ -52,9 +57,7 @@ for t = S+2 : T
         %h(:,t,m) = normrnd(h_mean, sd);        
         h(:,t,m) = randn(N, 1) * sd + h_mean;
 
-        % Compute J
-        I_terms = beta .* data(:,(t-2):-1:(t-S));
-        I = sum(I_terms(:));
+
      
         J = b(i) + I + w(i,:) * h(:,t,m);
 
