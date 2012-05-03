@@ -1,5 +1,4 @@
-%function [q g H] = q_single_neuron(theta_intrinsic, params, h, n, i, delta, tau, sigma, p_weights)
-function [q g] = q_single_neuron_full(theta, params, h, n, i, delta, tau, sigma, p_weights)
+function [q g H] = q_single_neuron_full(theta, beta_subset, w(i,:), squeeze(h(i,:,:,:)), n, i, delta, tau, sigma, p_weights(i,:,:))
 %function q = q_single_neuron(theta_intrinsic, params, h, n, i, delta, tau, sigma, p_weights)
 %Q_SINGLE_NEURON 
 % This evaluates the negative of the q function of the EM algorithm for our
