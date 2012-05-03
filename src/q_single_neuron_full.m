@@ -34,7 +34,7 @@ beta = squeeze(params.beta(i,:,:));
 M = size(h,3);
 b_i = theta_intrinsic(1);
 w(i,:) = reshape(theta_intrinsic(2:N+1),1,N);
-beta(i,:) = reshape(theta_intrinsic(N+2:N+S), 1, S - 1);
+beta(i,:) = reshape(theta_intrinsic(N+2:(N*S+3)), 1, N*(S - 1));
 
 %reg_param1 = 1e1;
 %reg_param2 = 1e1;
@@ -42,16 +42,18 @@ reg_param1 = 1;
 reg_param2 = 0;
 q_sum = 0;
 
-g = zeros(S + 1, 1);
-H = zeros(S + 1, S + 1);
+g = zeros(N*S+3, 1);
+H = zeros(N*S+3, N*S+3);
 
 %disp('running objective function');
 
 for t = S+1:T    
     % Partial derivatives of J
     % dJ(1) = dJ_i/db_i = 1
-    % dJ(2) = dJ_i/dw_{ii} = h_{ii}(t)
-    dJ = zeros(S + N, 1);
+    % dJ(2:N+1) = dJ_i/dw_{ij} = h_{ij}(t)
+    % dJ(N+2:N*S+3) = dJ_i/dbeta_{i,j,s} = n(j,t);    
+    
+    dJ = zeros(N*S+3, 1);
     dJ(1) = 1;        
     dJ(2) = p_weights(t,:) * reshape(h(i,t,:), M, 1);
     % The derivative of beta_{iis} is n_{i}(t - s)
