@@ -1,4 +1,5 @@
-function [q g H] = q_single_neuron_full(theta, params, h, n, i, delta, tau, sigma, p_weights)
+function [q g H] = q_single_neuron_full(theta, beta, w, h, n, i, delta, tau, sigma, p_weights)
+
 %function q = q_single_neuron(theta_intrinsic, params, h, n, i, delta, tau, sigma, p_weights)
 %Q_SINGLE_NEURON 
 % This evaluates the negative of the q function of the EM algorithm for our
@@ -27,8 +28,7 @@ function [q g H] = q_single_neuron_full(theta, params, h, n, i, delta, tau, sigm
 
 %beta = params.beta;
 % lambda = params.lambda;
-w = params.w;
-S  = size(params.beta,3) + 1;
+S  = size(beta,2) + 1;
 [N, T] = size(n);
 %beta = squeeze(params.beta(i,:,:));
 M = size(h,3);
@@ -42,8 +42,8 @@ reg_param1 = 1;
 reg_param2 = 0;
 q_sum = 0;
 
-g = zeros(N*S+3, 1);
-H = zeros(N*S+3, N*S+3);
+g = zeros(N*S+1, 1);
+H = zeros(N*S+1, N*S+1);
 
 %disp('running objective function');
 
@@ -53,12 +53,12 @@ for t = S+1:T
     % dJ(2:N+1) = dJ_i/dw_{ij} = h_{ij}(t)
     % dJ(N+2:N*S+3) = dJ_i/dbeta_{i,j,s} = n(j,t);    
     
-%     dJ = zeros(N*S+3, 1);
-%     dJ(1) = 1;    
-%     dJ(2:(N+1)) = p_weights(t,:) .* reshape(h(i,t,:), M, 1);
-%         
-%     n_terms = n(:,(t-2):-1:(t-S));
-%     dJ((N+2):end) = n_terms(:);
+    dJ = zeros(N*S+1, 1);
+    dJ(1) = 1;    
+    dJ(2:(N+1)) = p_weights(t,:) * reshape(h(:,t,:), N, M)';
+        
+    n_terms = n(:,(t-2):-1:(t-S));    
+    dJ((N+2):end) = n_terms(:);
    
     % Common gradient terms for this timestep (to multiply with dJ)
     % Both these techniques work due to distributive property
@@ -71,7 +71,7 @@ for t = S+1:T
     I = sum(I_terms(:));    
     
     for m = 1:M                
-        J = b_i + I + w(i,:) * h(:,t,m);
+        J = b_i + I + w * h(:,t,m);
         
         eJd = exp(J)*delta;
         % The expensive computations happen when n(i,t) == 1, which is
@@ -129,15 +129,14 @@ end
 
 flatbeta = beta(:);
 
-% g = -g;
-% g(2) = g(2) + reg_param1 * sign(w(i,i));
-% g(3:end) = g(3:end) + reg_param2 * sum(sign(flatbeta));
-
+g = -g;
+g(2) = g(2) + reg_param1 * sum(sign(w));
+g(3:end) = g(3:end) + reg_param2 * sum(sign(flatbeta));
 
 H = -H;
 
 % No regularization for H, since the L1 regularization terms have zero
 % second derivative
 
-q = -q_sum + reg_param1 * abs(w(i,i)) + reg_param2 * sum(abs(flatbeta));
+q = -q_sum + reg_param1 * sum(abs(w)) + reg_param2 * sum(abs(flatbeta));
 %q = -q_sum;

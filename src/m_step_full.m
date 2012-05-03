@@ -7,7 +7,7 @@ function [ output_args ] = m_step_full(theta_intrinsic, options, N, varargin)
     ub = ones(size(theta_intrinsic)) * 2;
     lb(1) = -5; lb(2:N+1) = -10;
     ub(1) = 5; ub(2:N+1) = 10;
-    [theta_intrinsic,fval,exitflag,output] = fmincon('q_single_neuron',theta_intrinsic, [], [], [], [], lb, ub,[],options, varargin{:});
+    [theta_intrinsic,fval,exitflag,output] = fmincon('q_single_neuron_full',theta_intrinsic, [], [], [], [], lb, ub,[],options, varargin{:});
 
 end
 

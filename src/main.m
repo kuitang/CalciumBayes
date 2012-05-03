@@ -16,7 +16,7 @@ n = sim.n(1:10,:);
 
 %% Set optimization options
 optim_options = optimset('LargeScale','on','Display','iter','Algorithm', ...
-    'trust-region-reflective','GradObj','on','Hessian','user-supplied'); 
+    'trust-region-reflective','GradObj','on','Hessian','user-supplied','DerivativeCheck','on'); 
 
 %% Set physical parameters
 % Physical parameters (TODO: Set up and figure out scale!)
@@ -25,7 +25,6 @@ optim_options = optimset('LargeScale','on','Display','iter','Algorithm', ...
 sigma = 1e-14;
 tau = .020; %set to match simulator
 delta = .010;
-
 
 
 [N T] = size(n);
@@ -134,8 +133,7 @@ while(norm(w - w_prev) > thresh_w)
         for i = drange(1:N)
             %% M step for all parameters
             theta = [b(i) w(i,:) reshape(beta(i, :, :),1,N*S-N)];
-            old_theta_intr = ones(size(theta)) * 500;
-
+            beta_subset = reshape(beta(i,:,:), N, S - 1);
             theta = m_step_full(theta, optim_options, N, beta_subset, w(i,:), squeeze(h(i,:,:,:)), n, i, delta, tau, sigma, squeeze(p_weights(i,:,:)));
 
             b(i,1) = theta(1);            
