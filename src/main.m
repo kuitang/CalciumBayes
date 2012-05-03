@@ -114,8 +114,6 @@ while(norm(w - w_prev) > thresh_w)
         for i = drange(1:N)
 
             theta = [b(i) w(i,:) reshape(beta(i, :, :),1,N*S-N)];
-            old_theta_intr = ones(size(theta)) * 500;
-
             theta = m_step_full(theta, optim_options, N, beta_subset, w(i,:), squeeze(h(i,:,:,:)), n, i, delta, tau, sigma, p_weights(i,:,:));
 
             b(i,1) = theta_intrinsic(1);
