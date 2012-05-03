@@ -121,8 +121,8 @@ while(norm(w - w_prev) > thresh_w)
             beta_subset = reshape(beta(i,:,:), N, S - 1);
             theta = m_step_full(theta, optim_options, N, beta_subset, w(i,:), squeeze(h(i,:,:,:)), n, i, delta, tau, sigma, squeeze(p_weights(i,:,:)));
 
-            b(i,1) = theta(1);            
-            w(i,:) = reshape(theta_intrinsic(2:N+1),1,N);
+            b(i,1) = theta(1);
+            w(i,:) = reshape(theta(2:N+1),1,N);
             beta(i,:,:) = reshape(theta_intrinsic(N+2:(N*S+3)), 1, N*(S - 1));
         end
     end % spmd
