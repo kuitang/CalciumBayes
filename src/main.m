@@ -85,17 +85,13 @@ end
 w_prev = ones(size(w)) * 500;
 thresh_w = .001;
 
+ll = -Inf;
 while(norm(w - w_prev) > thresh_w)    
     spmd(N)   
-    %parfor i = 1 : N
-    ll = -Inf;
-     
         for i = drange(1:N)
-
             disp(['Neuron ' num2str(i) '/' num2str(N)]);            
 
             %% Initialize the intrinsic parameters
-
             theta_intrinsic = [b(i) w(i,i) reshape(beta(i, i, :),1,S-1)];
             old_theta_intr = ones(size(theta_intrinsic)) * 500;
 
@@ -116,9 +112,9 @@ while(norm(w - w_prev) > thresh_w)
                 disp('abs diff of params');
                 disp(abs(theta_intrinsic - old_theta_intr));
             end
-
         end
-                
+    end
+    spmd(N)
         for i = drange(1:N)
             %% M step for all parameters
             theta = [b(i) w(i,:) reshape(beta(i, :, :),1,N*S-N)];
@@ -128,19 +124,14 @@ while(norm(w - w_prev) > thresh_w)
             b(i,1) = theta(1);            
             w(i,:) = reshape(theta_intrinsic(2:N+1),1,N);
             beta(i,:,:) = reshape(theta_intrinsic(N+2:(N*S+3)), 1, N*(S - 1));
-
         end
-    
+    end % spmd
     %% Log likelihood for whole model
-    nll = log_likelihood(beta, b, w, h, n, delta, ones(T,M));
-    %nll = log_likelihood(gather(beta), gather(b), gather(w), gather(h), n, delta, ones(T,M));
-    ll = [ll nll];
-    disp('ll =');
-    disp(ll);        
-    end
-    
+    %nll = log_likelihood(beta, b, w, h, n, delta, p_weights);
+    %ll = [ll nll];
+    %disp('nll =');
+    %disp(nll);        
     save('iteration_run.mat')
-    
 end
 
 save('finished_run.mat');
