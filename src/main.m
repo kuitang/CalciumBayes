@@ -1,4 +1,5 @@
 clear
+run_parallel = 1;
 
 %% use the same random number sequence for debugging purposes
 RandStream.setDefaultStream ...
@@ -14,7 +15,7 @@ load('good_sim_data_01.mat')
 n = sim.n(1:10,:);
 
 %% Set optimization options
-optim_options = optimset('LargeScale','on','Dispay','iter','Algorithm', ...
+optim_options = optimset('LargeScale','on','Display','iter','Algorithm', ...
     'trust-region-reflective','GradObj','on','Hessian','user-supplied'); 
 
 %% Set physical parameters
@@ -35,14 +36,34 @@ M = 50; % size of particle sampler
 % TODO: Set up priors!
 
 %% Set codistributed arrays
+if run_parallel
+    spmd(N)
+        codist = codistributor1d(1);
+        beta = zeros(N, N, S-1, codist);
+        % lambda = ones(N, S);
+        b = zeros(N, 1, codist);
+        w = ones(N, N, codist) .* .1*exprnd(.9,N);
+        p_weights = zeros(N,T,M,codist);
+        % for i=1:N/5
+        %     rand_inh
+        %     w(i,:) = -exprnd(2.3,N,1);
+        % end
 
-spmd(N)
-    codist = codistributor1d(1);
-    beta = zeros(N, N, S-1, codist);
+        w = w .* binornd(1,.1,N,N);%second arg is "sparesness"
+
+        h = zeros(N,N,T,M, codist);
+
+        for i = drange(1:N)
+            w(i,i) = -abs(normrnd(.6,.2));
+        end
+    end
+else
+    %% Set noncodistributed arrays
+    beta = zeros(N, N, S-1);
     % lambda = ones(N, S);
-    b = zeros(N, 1, codist);
-    w = ones(N, N, codist) .* .1*exprnd(.9,N);
-    p_weights = zeros(N,T,M,codist);
+    b = zeros(N, 1);
+    w = ones(N, N) .* .1*exprnd(.9,N);
+    p_weights = zeros(N,T,M);
     % for i=1:N/5
     %     rand_inh
     %     w(i,:) = -exprnd(2.3,N,1);
@@ -50,16 +71,16 @@ spmd(N)
 
     w = w .* binornd(1,.1,N,N);%second arg is "sparesness"
 
-    h = zeros(N,N,T,M, codist);
+    h = zeros(N,N,T,M);
 
-    for i = drange(1:N)
+    for i = 1:N
         w(i,i) = -abs(normrnd(.6,.2));
     end
 end
-
 % load('first_e_step_complete.mat');
 % first = 1;
 
+%% Initialize theta_intrinsic
 theta_intrinsic = cell(N,1);
 
 for i = 1:N
@@ -92,14 +113,13 @@ while(norm(w - w_prev) > thresh_w)
 
             %% Let the intrinsic parameters converge
             while( norm(theta_intrinsic - old_theta_intr) > 1e-4)
-                %% E step (SMC) for one neuron
-                iter = iter + 1;
+                %% E step (SMC) for one neuron                
                 old_theta_intr = theta_intrinsic;
                 beta_subset = reshape(beta(i,:,:), N, S - 1);
                 [p_weights(i,:,:) h(i,:,:,:)] = e_step_smc(i, M, tau, delta, sigma, beta_subset, b(i), w(i,:), n);
 
                 %% M step for the intrinsic parameters for one neuron
-                theta_intrinsic = m_step_smc(theta_intrinsic, optim_options, beta_subset, w(i,:), squeeze(h(i,:,:,:)), n, i, delta, tau, sigma, p_weights(i,:,:));                
+                theta_intrinsic = m_step_smc(theta_intrinsic, optim_options, beta_subset, w(i,:), squeeze(h(i,:,:,:)), n, i, delta, tau, sigma, squeeze(p_weights(i,:,:)));                
                 b(i,1) = theta_intrinsic(1);
                 w(i,i) = theta_intrinsic(2);
                 beta(i, i, :) = reshape(theta_intrinsic(3:1+S),1,1,S-1);
@@ -110,21 +130,21 @@ while(norm(w - w_prev) > thresh_w)
             end
 
         end
-    
+                
         for i = drange(1:N)
-
+            %% M step for all parameters
             theta = [b(i) w(i,:) reshape(beta(i, :, :),1,N*S-N)];
             old_theta_intr = ones(size(theta)) * 500;
 
-            theta = m_step_full(theta, optim_options, N, beta_subset, w(i,:), squeeze(h(i,:,:,:)), n, i, delta, tau, sigma, p_weights(i,:,:));
+            theta = m_step_full(theta, optim_options, N, beta_subset, w(i,:), squeeze(h(i,:,:,:)), n, i, delta, tau, sigma, squeeze(p_weights(i,:,:)));
 
-            b(i,1) = theta_intrinsic(1);
+            b(i,1) = theta(1);            
             w(i,:) = reshape(theta_intrinsic(2:N+1),1,N);
-            beta(i,:) = reshape(theta_intrinsic(N+2:(N*S+3)), 1, N*(S - 1));
+            beta(i,:,:) = reshape(theta_intrinsic(N+2:(N*S+3)), 1, N*(S - 1));
 
         end
     
-    
+    %% Log likelihood for whole model
     nll = log_likelihood(beta, b, w, h, n, delta, ones(T,M));
     %nll = log_likelihood(gather(beta), gather(b), gather(w), gather(h), n, delta, ones(T,M));
     ll = [ll nll];

@@ -1,5 +1,4 @@
-%function [q g H] = q_single_neuron(theta_intrinsic, params, h, n, i, delta, tau, sigma, p_weights)
-function [q g] = q_single_neuron_full(theta, params, h, n, i, delta, tau, sigma, p_weights)
+function [q g H] = q_single_neuron_full(theta, params, h, n, i, delta, tau, sigma, p_weights)
 %function q = q_single_neuron(theta_intrinsic, params, h, n, i, delta, tau, sigma, p_weights)
 %Q_SINGLE_NEURON 
 % This evaluates the negative of the q function of the EM algorithm for our
@@ -13,6 +12,7 @@ function [q g] = q_single_neuron_full(theta, params, h, n, i, delta, tau, sigma,
 % lambda     (S-1) x 1 vector of indirect weights from unobserved neurons
 % tau       n x 1 vector of history decay constants for this neuron's history term
 % sigma     std dev parameter for this neuron's history term
+% p_weights 
 
 % CONSTANT PARAMS FOR THIS PART
 % h         N X T X M matrix of latent history terms for this neuron for
@@ -30,11 +30,11 @@ function [q g] = q_single_neuron_full(theta, params, h, n, i, delta, tau, sigma,
 w = params.w;
 S  = size(params.beta,3) + 1;
 [N, T] = size(n);
-beta = squeeze(params.beta(i,:,:));
+%beta = squeeze(params.beta(i,:,:));
 M = size(h,3);
-b_i = theta_intrinsic(1);
-w(i,:) = reshape(theta_intrinsic(2:N+1),1,N);
-beta(i,:) = reshape(theta_intrinsic(N+2:(N*S+3)), 1, N*(S - 1));
+b_i = theta(1);
+%w(i,:) = reshape(theta(2:N+1),1,N);
+%beta = reshape(theta(N+2:end), N, S - 1);
 
 %reg_param1 = 1e1;
 %reg_param2 = 1e1;
@@ -53,16 +53,17 @@ for t = S+1:T
     % dJ(2:N+1) = dJ_i/dw_{ij} = h_{ij}(t)
     % dJ(N+2:N*S+3) = dJ_i/dbeta_{i,j,s} = n(j,t);    
     
-    dJ = zeros(N*S+3, 1);
-    dJ(1) = 1;        
-    dJ(2) = p_weights(t,:) * reshape(h(i,t,:), M, 1);
-    % The derivative of beta_{iis} is n_{i}(t - s)
-    dJ(3:end) = n(i,(t-2):-1:(t-S));
+%     dJ = zeros(N*S+3, 1);
+%     dJ(1) = 1;    
+%     dJ(2:(N+1)) = p_weights(t,:) .* reshape(h(i,t,:), M, 1);
+%         
+%     n_terms = n(:,(t-2):-1:(t-S));
+%     dJ((N+2):end) = n_terms(:);
    
     % Common gradient terms for this timestep (to multiply with dJ)
     % Both these techniques work due to distributive property
     dQ = 0;
-    % Common Jacobian terms for this timestep (to multiply with dJ(n)*dJ(m))
+    % Common Hessian terms for this timestep (to multiply with dJ(n)*dJ(m))
     ddQ = 0;
     
     % I doesn't depend on samples, so compute here
@@ -128,9 +129,9 @@ end
 
 flatbeta = beta(:);
 
-g = -g;
-g(2) = g(2) + reg_param1 * sign(w(i,i));
-g(3:end) = g(3:end) + reg_param2 * sum(sign(flatbeta));
+% g = -g;
+% g(2) = g(2) + reg_param1 * sign(w(i,i));
+% g(3:end) = g(3:end) + reg_param2 * sum(sign(flatbeta));
 
 
 H = -H;
