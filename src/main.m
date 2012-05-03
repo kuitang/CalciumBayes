@@ -10,8 +10,8 @@ RandStream.setDefaultStream ...
 % truncdata = truncdata(:,1:100);
 % n = truncdata;
 
-load('05_02_721am_simspikes_subpop.mat')
-n = spikes_subpop';
+load('good_sim_data_01.mat')
+n = sim.n(1:10,:);
 
 %% Set physical parameters
 % Physical parameters (TODO: Set up and figure out scale!)
@@ -19,7 +19,7 @@ n = spikes_subpop';
 %sigma = 0.01;
 sigma = 1e-14;
 tau = .020; %set to match simulator
-delta = .001;
+delta = .010;
 
 
 
@@ -33,11 +33,16 @@ params.beta = zeros(N, N, S-1);
 % params.lambda = ones(N, S);
 params.b = zeros(1, N);
 params.w = zeros(N, N);
-params.w = .1*exprnd(.5,N);
-for i=1:N/5
-    params.w(i,:) = -exprnd(2.3,N,1);
+params.w = .1*exprnd(.9,N);
+% for i=1:N/5
+%     rand_inh
+%     params.w(i,:) = -exprnd(2.3,N,1);
+% end
+
+params.w = params.w .* binornd(1,.1,N,N);%second arg is "sparesness"
+for i = 1:N   
+    params.w(i,i) = -abs(normrnd(.6,.2));
 end
-params.w = params.w .* binornd(1,.2,N,N);%second arg is "sparesness"
 
 theta_intrinsic_thresh = .01; %???
 
