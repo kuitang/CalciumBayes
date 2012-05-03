@@ -16,7 +16,7 @@ n = sim.n(1:10,:);
 
 %% Set optimization options
 optim_options = optimset('LargeScale','on','Display','iter','Algorithm', ...
-    'trust-region-reflective','GradObj','on','Hessian','user-supplied');
+    'trust-region-reflective','GradObj','on','Hessian','user-supplied', 'MaxIter',100);
 
 %% Set physical parameters
 % Physical parameters (TODO: Set up and figure out scale!)
