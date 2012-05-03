@@ -69,7 +69,7 @@ h = zeros(N,N,T,M);
         old_theta_intr = ones(size(theta_intrinsic)) * 500;
         
         %% Let the intrinsic parameters converge
-        while( any(abs(theta_intrinsic - old_theta_intr) > .1))
+        while( any(abs(theta_intrinsic - old_theta_intr) > 1e-4))
             %% E step (SMC) for one neuron
             iter = iter + 1;
             old_theta_intr = theta_intrinsic;
