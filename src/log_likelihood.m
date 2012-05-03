@@ -1,4 +1,4 @@
-function ll = log_likelihood(params, h, n, delta, p_weights)
+function ll = log_likelihood(beta, b, w, h, n, delta, p_weights)
 
 % error('TODO: Fix the log_likelihood interface to only use the history
 % terms of one neuron at a time')
@@ -6,10 +6,6 @@ function ll = log_likelihood(params, h, n, delta, p_weights)
 
 %log(P(data | params))
 
-beta = params.beta;
-% lambda = params.lambda;
-w = params.w;
-b = params.b;
 S  = size(beta,3) + 1;
 [N, T] = size(n);
 M = size(h,4);

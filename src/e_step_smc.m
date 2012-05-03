@@ -1,4 +1,4 @@
-function [ pb h ] = e_step_smc( i, M, tau, delta, sigma, params, data )
+function [ pb h ] = e_step_smc( i, M, tau, delta, sigma, beta, b, w, data )
 %e_step_smc Perform the sampling SMC E-step for one neuron
 %   i - which neuron (scalar)
 %   M - number of particles (scalar)
@@ -7,20 +7,15 @@ function [ pb h ] = e_step_smc( i, M, tau, delta, sigma, params, data )
 %   sigma - noise standard deviation (scalar)
 %   beta - higher order interaction for this neuron (N x S)
 %   lambda - indirect influences (N x S)
-%   b - baseline rates (1 x N)
-%   w - connectivity matrix (N x N)
+%   b - baseline rate for this neuron (scalar)
+%   w - connectivity vector (1 x N)
 %   data - spike trains (N x T sparse)
 % 
 %   pb - backward sample weights (T x M)
 %   h - samples (N x T x M)
 
 [N, T] = size(data);
-S = size(params.beta,3) + 1;
-beta = reshape(params.beta(i,:,:), N, S - 1);
-
-% lambda = params.lambda;
-w = params.w;
-b = params.b;
+S = size(beta,2) + 1;
 
 sd = sigma*sqrt(delta);
 
@@ -56,10 +51,8 @@ for t = S+2 : T
         % normrnd wastes time error-checking        
         %h(:,t,m) = normrnd(h_mean, sd);        
         h(:,t,m) = randn(N, 1) * sd + h_mean;
-
-
      
-        J = b(i) + I + w(i,:) * h(:,t,m);
+        J = b + I + w * h(:,t,m);
 
         % Compute probabilities
         % q = normpdf(h(:,t,m), h_mean, sd)
