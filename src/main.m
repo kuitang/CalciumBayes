@@ -60,12 +60,13 @@ end
 % while(sum(sum(abs(w - w_prev))) > thresh_w)
     
     %parfor i = 1 : N
+    ll = -Inf;
     spmd(N)        
         for i = drange(1:N)
 
             disp(['Neuron ' num2str(i) '/' num2str(N)]);            
 
-            ll = -Inf;
+            
             iter = 1;
 
             %theta_intrinsic = [b_i w_ii beta_ii(2:S)' lambda(1:S-1)] % NO
@@ -97,31 +98,34 @@ end
 
             %% Compute the new log-likelihood        
     %         save('new_m_step_complete.mat');
+        end
+    end
+    
+    nll = log_likelihood(beta, b, w, h, n, delta, ones(T,M));
+    %nll = log_likelihood(gather(beta), gather(b), gather(w), gather(h), n, delta, ones(T,M));
+    ll = [ll nll];
+    disp('ll =');
+    disp(ll);
+%         disp('******');
+%         disp(theta_intrinsic);
+%         disp(old_theta_intr);
+%         disp(theta_intrinsic - old_theta_intr);
+%         disp(abs(theta_intrinsic - old_theta_intr));
+%         disp(sum(abs(theta_intrinsic - old_theta_intr)));
 
-            nll = log_likelihood(beta, b, w, h, n, delta, p_weights);
-            ll = [ll nll];
-            disp('ll =');
-            disp(ll);
-    %         disp('******');
-    %         disp(theta_intrinsic);
-    %         disp(old_theta_intr);
-    %         disp(theta_intrinsic - old_theta_intr);
-    %         disp(abs(theta_intrinsic - old_theta_intr));
-    %         disp(sum(abs(theta_intrinsic - old_theta_intr)));
+%         while(sum(abs(theta_intrinsic - old_theta_intr)) > .01) %we shoudl make this bigger...
+        %... maybe this: abs(theta_intrinsic - old_theta_intr) > .01
+        %... that is, don't sum, just test each one
 
-    %         while(sum(abs(theta_intrinsic - old_theta_intr)) > .01) %we shoudl make this bigger...
-                %... maybe this: abs(theta_intrinsic - old_theta_intr) > .01
-                %... that is, don't sum, just test each one
 
-        
-     end
+
     
     %% blah blah blah
-%    save('finished_run.mat');
+    save('finished_run.mat');
     
     
 %     m_step_joint(b, w, beta, lambda, tau, sigma, h, truncdata, i, delta, M);
     
- end
+
 
 
