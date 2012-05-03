@@ -59,10 +59,19 @@ end
 % load('first_e_step_complete.mat');
 % first = 1;
 
+theta_intrinsic = cell(N,1);
+
+for i = 1:N
+    
+    theta_intrinsic{i} = [b(i) w(i,i) reshape(beta(i, i, :),1,S-1)];
+    
+end
+
 %% Main loop
 %until the change in connectivity matrix w is below threshold change
 % while(norm(w - w_prev) > thresh_w)
     
+
     %parfor i = 1 : N
     ll = -Inf;
     spmd(N)        
