@@ -164,10 +164,10 @@ for t = 1 : T
     % h is N x T x M => squeeze(h(:,t,:))' is M * N
     sample_expectation_mean(t) = mean(pb(t,:) * reshape(h(:,t,:), M, N));
 end
-figure
-hold on
-plot(sample_expectation_mean)
-scatter(1:T, data(i,:))
-drawnow
+% figure
+% hold on
+% plot(sample_expectation_mean)
+% scatter(1:T, data(i,:))
+% drawnow
 
 end
