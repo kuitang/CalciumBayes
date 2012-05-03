@@ -95,8 +95,7 @@ end
 w_prev = ones(size(w)) * 500;
 thresh_w = .001;
 
-while(norm(w - w_prev) > thresh_w)
-    
+while(norm(w - w_prev) > thresh_w)    
     spmd(N)   
     %parfor i = 1 : N
     ll = -Inf;
@@ -147,9 +146,11 @@ while(norm(w - w_prev) > thresh_w)
     %nll = log_likelihood(gather(beta), gather(b), gather(w), gather(h), n, delta, ones(T,M));
     ll = [ll nll];
     disp('ll =');
-    disp(ll);
-        
+    disp(ll);        
     end
+    
+    save('iteration_run.mat')
+    
 end
 
 save('finished_run.mat');
