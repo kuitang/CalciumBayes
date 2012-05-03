@@ -123,7 +123,7 @@ while(norm(w - w_prev) > thresh_w)
 
             b(i,1) = theta(1);
             w(i,:) = reshape(theta(2:N+1),1,N);
-            beta(i,:,:) = reshape(theta_intrinsic(N+2:(N*S+3)), 1, N*(S - 1));
+            beta(i,:,:) = reshape(theta(N+2:end), 1, N, (S - 1));
         end
     end % spmd
     %% Log likelihood for whole model
