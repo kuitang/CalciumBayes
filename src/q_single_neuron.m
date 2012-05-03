@@ -1,5 +1,5 @@
-%function [q g H] = q_single_neuron(theta_intrinsic, params, h, n, i, delta, tau, sigma, p_weights)
-function [q g] = q_single_neuron(theta_intrinsic, params, h, n, i, delta, tau, sigma, p_weights)
+function [q g H] = q_single_neuron(theta_intrinsic, params, h, n, i, delta, tau, sigma, p_weights)
+%function [q g] = q_single_neuron(theta_intrinsic, params, h, n, i, delta, tau, sigma, p_weights)
 %function q = q_single_neuron(theta_intrinsic, params, h, n, i, delta, tau, sigma, p_weights)
 %Q_SINGLE_NEURON 
 % This evaluates the negative of the q function of the EM algorithm for our
@@ -78,10 +78,12 @@ for t = S+1:T
         if n(i,t)
             eeJd = exp(-eJd);
             dQm = 1/(1 - eeJd) * eeJd * eJd;
-            ddQ2 = exp(-2*eJd + 2*J) * delta^2 / (1 - eeJd)^2;
-            ddQ3 = exp(-eJd + J) * delta / (1 - eeJd);
-            ddQ4 = exp(-eJd + 2*J) * delta^2 / (1 - eeJd);
-            ddQm = ddQ2 + ddQ3 + ddQ4;
+            
+            ddQ1 = exp(-eJd + J) * delta;
+            ddQ2 = exp(-2*eJd + 2*J) * delta^2 / (1 - eeJd);
+            ddQ3 = exp(-eJd + 2*J) * delta^2;
+            
+            ddQm = (ddQ1 + ddQ2 + ddQ3) / (1 - eeJd);
             
             Qm = log(1 - eeJd);
         else
