@@ -9,8 +9,8 @@ function [theta_intrinsic] = m_step_smc(theta_intrinsic, params, h, n, i, delta,
     options = optimset(options,'TolFun',.001);
 %     options = optimset(options,'MaxIter',100);
     %DRASTIC SLOWDOWN -- run this on cluster machine!
-    options = optimset(options,'FinDiffType', 'central');
-    options = optimset(options,'DerivativeCheck', 'on');
+%     options = optimset(options,'FinDiffType', 'central');
+%     options = optimset(options,'DerivativeCheck', 'on');
 
     lb = ones(size(theta_intrinsic)) * -2;
     ub = ones(size(theta_intrinsic)) * 2;
