@@ -83,7 +83,7 @@ end
 %until the change in connectivity matrix w is below threshold change
 
 w_prev = ones(size(w)) * 500;
-thresh_w = .001;
+thresh_w = .01;
 
 while(norm(w - w_prev) > thresh_w)    
     spmd(N)   
@@ -100,7 +100,7 @@ while(norm(w - w_prev) > thresh_w)
             old_theta_intr = ones(size(theta_intrinsic)) * 500;
 
             %% Let the intrinsic parameters converge
-            while( norm(theta_intrinsic - old_theta_intr) > 1e-4)
+            while( norm(theta_intrinsic - old_theta_intr) > 0.01)
                 %% E step (SMC) for one neuron                
                 old_theta_intr = theta_intrinsic;
                 beta_subset = reshape(beta(i,:,:), N, S - 1);
