@@ -13,6 +13,10 @@ RandStream.setDefaultStream ...
 load('good_sim_data_01.mat')
 n = sim.n(1:10,:);
 
+%% Set optimization options
+optim_options = optimset('LargeScale','on','Dispay','iter','Algorithm', ...
+    'trust-region-reflective','GradObj','on','Hessian','user-supplied'); 
+
 %% Set physical parameters
 % Physical parameters (TODO: Set up and figure out scale!)
 % Currently using unit (discrete) time and bullshit values
@@ -57,7 +61,7 @@ end
 
 %% Main loop
 %until the change in connectivity matrix w is below threshold change
-% while(sum(sum(abs(w - w_prev))) > thresh_w)
+% while(norm(w - w_prev) > thresh_w)
     
     %parfor i = 1 : N
     ll = -Inf;
@@ -77,7 +81,7 @@ end
             old_theta_intr = ones(size(theta_intrinsic)) * 500;
 
             %% Let the intrinsic parameters converge
-            while( any(abs(theta_intrinsic - old_theta_intr) > 1e-4))
+            while( norm(theta_intrinsic - old_theta_intr) > 1e-4)
                 %% E step (SMC) for one neuron
                 iter = iter + 1;
                 old_theta_intr = theta_intrinsic;
@@ -85,7 +89,7 @@ end
                 [p_weights h(i,:,:,:)] = e_step_smc(i, M, tau, delta, sigma, beta_subset, b(i), w(i,:), n);
 
                 %% M step for the intrinsic parameters for one neuron
-                theta_intrinsic = m_step_smc(theta_intrinsic, beta_subset, w(i,:), squeeze(h(i,:,:,:)), n, i, delta, tau, sigma, p_weights);                
+                theta_intrinsic = m_step_smc(theta_intrinsic, optim_options, beta_subset, w(i,:), squeeze(h(i,:,:,:)), n, i, delta, tau, sigma, p_weights);                
                 b(i,1) = theta_intrinsic(1);
                 w(i,i) = theta_intrinsic(2);
                 beta(i, i, :) = reshape(theta_intrinsic(3:1+S),1,1,S-1);
@@ -94,9 +98,10 @@ end
                 disp('abs diff of params');
                 disp(abs(theta_intrinsic - old_theta_intr));
             end
-
-
-            %% Compute the new log-likelihood        
+            
+            %% M step for all parameters
+            
+            %% Compute the new log-likelihood
     %         save('new_m_step_complete.mat');
         end
     end
