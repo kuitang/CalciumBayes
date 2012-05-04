@@ -27,6 +27,7 @@ h = zeros(N, T, M);
 % At the first timestep, we have a mean-zero normal distribution.
 % Draw M samples and give them uniform importance.
 pf = ones(T, M) / M;
+pf_new = pf;
 h(:,S+1,:) = normrnd(0, sd, N, M);
 
 % Now draw samples using modified Equation (11) in [Mischenko11]
@@ -49,8 +50,8 @@ for t = S+2 : T
         %I haven't figured out how to sample from conditional for one-ahead
         h_mean = (1 - delta/tau) * h(:,t-1,m) + data(:,t-1);        
         % normrnd wastes time error-checking        
-        %h(:,t,m) = normrnd(h_mean, sd);        
-        h(:,t,m) = randn(N, 1) * sd + h_mean;
+        h(:,t,m) = normrnd(h_mean, sd);        
+        %h(:,t,m) = randn(N, 1) * sd + h_mean;
 
         J = b + I + w * h(:,t,m);
 
@@ -68,10 +69,26 @@ for t = S+2 : T
             emission_prob = 1 - emission_param;
         end        
         pf(t, m) = emission_prob * pf(t-1, m);
+        if(isnan(pf(t,m)))
+          disp(emission_prob);
+        end
         %[norm(h(:,t,m)) emission_prob pf(t,m)]
     end
-    pf(t,:) = pf(t,:) / sum(pf(t,:));
+        if(isnan(sum(pf(t,:))))
+            disp('pf before summing');
+            disp(pf(t,:));
+             return
+             end
+    
+    pf_new(t,:) = pf(t,:) / sum(pf(t,:));
 
+    if(isnan(sum(pf_new(t,:))))
+      disp('pf before resampling');
+      disp(pf(t,:));
+      return
+    end
+    
+    pf = pf_new;
     % Stratified resampling explained in http://en.wikipedia.org/wiki/Particle_filter
     Neff = 1/(pf(t,:) * pf(t,:)');
     if Neff < Nthr
@@ -83,6 +100,13 @@ for t = S+2 : T
         % Reset weights to uniform
         pf(t, :) = ones(1, M) / M;
     end
+
+    if(isnan(sum(pf(t,:))))
+         disp('pf after  resampling');
+         disp(pf(t,:));
+         return;
+     end
+
     
 %     if data(i,t)
 %         lastspike = t;
@@ -124,9 +148,19 @@ for t_index = 0:(T-S-2)
 %        distances = bsxfun(@minus, h(:,t,m), h_means);
         h_squeezed = reshape(h(:,t-1,:), N, M);
         distances   = bsxfun(@plus, (1 - delta/tau) * h_squeezed, data(:,t-1) - h(:,t,m));
-        distances_sq = sum(distances .^ 2, 1);
+        distances_sq = sum(distances .^ 2,1);
         num_terms = exp(-0.5 * sd^-2 * distances_sq) .* pf(t-1,:);
-        
+        %num_terms = normpdf(-1*d
+        if(isnan(sum(num_terms)))
+          disp('num_terms');
+          disp(num_terms);
+          disp('distances');
+          disp(distances);
+          disp('distances_sq');
+          disp(distances_sq);
+          disp('pf');
+          disp(pf(t-1,:));
+         end
 %         for mm = 1 : M
 %             % hottest line (83/180 secs)
 %             h_mean = (1 - delta/tau) * h(:,t-1,mm) + data(:,t-1);
@@ -155,7 +189,7 @@ for t_index = 0:(T-S-2)
     pb(t-1,:) = sum(r, 1);%sum over 1 or 2 here? I THINK 1 - BS
     
     pb(t-1,:) = pb(t-1,:) / sum(pb(t-1,:));
-    if(isnan(sum(sum(b))))
+    if(isnan(sum(sum(pb))))
       disp('PB WEIGHT IS NAN!!!');
     end
 end

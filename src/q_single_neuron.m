@@ -37,7 +37,7 @@ beta(i,:) = reshape(theta_intrinsic(3:1+S), 1, S - 1);
 
 %reg_param1 = 1e1;
 %reg_param2 = 1e1;
-reg_param1 = 0; 
+reg_param1 = 5; 
 reg_param2 = 0;
 q_sum = 0;
 
@@ -100,10 +100,11 @@ for t = S+1:T
       %  disp(Qm);
 
         q_sum = q_sum + p_weights(t,m) * Qm;
-      %  if(isnan(q_sum))
-      %    disp(p_weights(t,m));
-      %    disp(Qm);
-      %  end
+%       if(isnan(p_weights(t,m) * Qm))
+%        disp('*');
+%         disp(p_weights(t,m));
+%          disp(Qm);
+%        end
         dQ    = dQ  + p_weights(t,m) * dQm;
         ddQ   = ddQ + p_weights(t,m) * ddQm;                   
 
@@ -144,12 +145,13 @@ g(2) = g(2) + reg_param1 * sign(w(i));
 g(3:end) = g(3:end) + reg_param2 * sum(sign(flatbeta));
 
 
-H = -H;
+%H = -H;
+H = zeros(S + 1, S + 1);
 
 % No regularization for H, since the L1 regularization terms have zero
 % second derivative
 
-q = -q_sum + reg_param1 * abs(w(i)) + reg_param2 * sum(abs(flatbeta))
+q = -q_sum + reg_param1 * abs(w(i)) + reg_param2 * sum(abs(flatbeta));
 
 
 %q = -q_sum;

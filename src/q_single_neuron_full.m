@@ -38,7 +38,7 @@ b_i = theta(1);
 
 %reg_param1 = 1e1;
 %reg_param2 = 1e1;
-reg_param1 = 0;
+reg_param1 = 10;
 reg_param2 = 0;
 q_sum = 0;
 
@@ -137,7 +137,8 @@ g = -g;
 g(2) = g(2) + reg_param1 * sum(sign(w));
 g(3:end) = g(3:end) + reg_param2 * sum(sign(flatbeta));
 
-H = -H;
+%H = -H;
+H = zeros(N*S+1, N*S+1);
 
 % No regularization for H, since the L1 regularization terms have zero
 % second derivative
