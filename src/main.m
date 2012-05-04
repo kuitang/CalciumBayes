@@ -15,7 +15,7 @@ load('good_sim_data_01.mat')
 n = sim.n(1:10,:);
 
 %% Set optimization options
-optim_options = optimset('LargeScale','on','Display','iter','Algorithm', ...
+optim_options = optimset('LargeScale','on','Algorithm', ...
     'trust-region-reflective','GradObj','on','Hessian','user-supplied', 'MaxIter',100);
 
 %% Set physical parameters
@@ -89,9 +89,14 @@ ll = -Inf;
 
 while(norm(w - w_prev) > thresh_w)    
     
-    w_prev = w;
-        
-        
+    
+    disp(w);    
+    disp(['NORM: ' num2str(norm(w - w_prev))]); 
+    disp('********BEGINNING OF LOOP********');    
+    disp('*********************************');
+    w_prev = w; 
+    
+    
     spmd(N)  
         for i = drange(1:N)
             disp(['Neuron ' num2str(i) '/' num2str(N)]);            
@@ -101,7 +106,10 @@ while(norm(w - w_prev) > thresh_w)
             old_theta_intr = ones(size(theta_intrinsic)) * 500;
 
             %% Let the intrinsic parameters converge
-            while( norm(theta_intrinsic - old_theta_intr) > 0.01)
+            while(theta_intrinsic(1) - old_theta_intr(1) > .1 || norm(theta_intrinsic(2:end) - old_theta_intr(2:end)) > 0.01)
+                
+                disp(['NEURON ' num2str(i) ' NORM: ' num2str(norm(theta_intrinsic(2:end) - old_theta_intr(2:end))]);
+                
                 %% E step (SMC) for one neuron                
                 old_theta_intr = theta_intrinsic;
                 beta_subset = reshape(beta(i,:,:), N, S - 1);
@@ -114,10 +122,9 @@ while(norm(w - w_prev) > thresh_w)
                 beta(i, i, :) = reshape(theta_intrinsic(3:1+S),1,1,S-1);
                 disp('new params:');
                 disp(theta_intrinsic);
-                disp('abs diff of params');
-                disp(abs(theta_intrinsic - old_theta_intr));
             end
-        end
+           disp(['NEURON ' num2str(i) ' DONE!']);
+       end
     end
     spmd(N)
         for i = drange(1:N)
