@@ -37,8 +37,8 @@ beta(i,:) = reshape(theta_intrinsic(3:1+S), 1, S - 1);
 
 %reg_param1 = 1e1;
 %reg_param2 = 1e1;
-reg_param1 = 10; 
-reg_param2 = 10;
+reg_param1 = 0; 
+reg_param2 = 0;
 q_sum = 0;
 
 g = zeros(S + 1, 1);
@@ -90,20 +90,20 @@ for t = S+1:T
             Qm = -eJd;
         end
 
-        if(any(isnan([Qm dQm ddQm])))
-            disp('FAIL!!!!!');
+      %  if(any(isnan([Qm dQm ddQm])))
+      %      disp('FAIL!!!!!');
 %            assert(all(~isnan([Qm dQm ddQm])))
-        end
-        if(isnan(Qm))
-          disp('Qm is nan');
-        end
+      %  end
+      % if(isnan(Qm))
+      %    disp('Qm is nan');
+      %  end
       %  disp(Qm);
 
         q_sum = q_sum + p_weights(t,m) * Qm;
-        if(isnan(q_sum))
-          disp(p_weights(t,m));
-          disp(Qm);
-        end
+      %  if(isnan(q_sum))
+      %    disp(p_weights(t,m));
+      %    disp(Qm);
+      %  end
         dQ    = dQ  + p_weights(t,m) * dQm;
         ddQ   = ddQ + p_weights(t,m) * ddQm;                   
 
@@ -150,7 +150,6 @@ H = -H;
 % second derivative
 
 q = -q_sum + reg_param1 * abs(w(i)) + reg_param2 * sum(abs(flatbeta))
-disp(isnan(q));
 
 
 %q = -q_sum;
