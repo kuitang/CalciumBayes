@@ -90,7 +90,7 @@ for t = S+1:T
             Qm = -eJd;
         end
 
-        if(~assert(all(~isnan([Qm dQm ddQm]))))
+        if(any(isnan([Qm dQm ddQm])))
             disp('FAIL!!!!!');
             assert(all(~isnan([Qm dQm ddQm])))
         end
