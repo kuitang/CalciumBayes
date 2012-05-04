@@ -30,3 +30,6 @@ data/*
 # MATLAB backups
 *~
 
+#Specific files
+src/good_sim_data_20n_10m.mat
+
