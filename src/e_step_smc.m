@@ -51,12 +51,17 @@ for t = S+2 : T
         % normrnd wastes time error-checking        
         %h(:,t,m) = normrnd(h_mean, sd);        
         h(:,t,m) = randn(N, 1) * sd + h_mean;
-     
+
         J = b + I + w * h(:,t,m);
 
         % Compute probabilities
         % q = normpdf(h(:,t,m), h_mean, sd)
         emission_param = 1 - exp(-exp(J) * delta);
+
+        if (isnan(emission_param))
+          disp('emission is nan');
+          disp(J);
+        end
         if data(i,t)
             emission_prob = emission_param;
         else
