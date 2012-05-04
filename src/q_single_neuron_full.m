@@ -92,7 +92,11 @@ for t = S+1:T
             Qm = -eJd;
         end
 
-        assert(all(~isnan([Qm dQm ddQm])))
+        if(~assert(all(~isnan([Qm dQm ddQm]))))
+            disp('FAIL!!!!!');
+            assert(all(~isnan([Qm dQm ddQm])))
+        end
+        
         q_sum = q_sum + p_weights(t,m) * Qm;
         dQ    = dQ  + p_weights(t,m) * dQm;
         ddQ   = ddQ + p_weights(t,m) * ddQm;                   
