@@ -38,7 +38,7 @@ b_i = theta(1);
 
 %reg_param1 = 1e1;
 %reg_param2 = 1e1;
-reg_param1 = 1;
+reg_param1 = 10;
 reg_param2 = 0;
 q_sum = 0;
 
