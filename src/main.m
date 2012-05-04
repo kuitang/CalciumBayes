@@ -36,7 +36,7 @@ M = 50; % size of particle sampler
 
 %% Set codistributed arrays
 if run_parallel
-    spmd(N)
+    spmd
         codist = codistributor1d(1);
         beta = zeros(N, N, S-1, codist);
         % lambda = ones(N, S);
@@ -47,10 +47,10 @@ if run_parallel
         %     rand_inh
         %     w(i,:) = -exprnd(2.3,N,1);
         % end
+        h = zeros(N,N,T,M, codist);
 
         w = w .* binornd(1,.1,N,N);%second arg is "sparesness"
 
-        h = zeros(N,N,T,M, codist);
 
         for i = drange(1:N)
             w(i,i) = -abs(normrnd(.6,.2));
@@ -87,7 +87,11 @@ thresh_w = .001;
 
 ll = -Inf;
 while(norm(w - w_prev) > thresh_w)    
-    spmd(N)   
+    
+    w_prev = w;
+        
+        
+    spmd   
         for i = drange(1:N)
             disp(['Neuron ' num2str(i) '/' num2str(N)]);            
 
@@ -96,7 +100,7 @@ while(norm(w - w_prev) > thresh_w)
             old_theta_intr = ones(size(theta_intrinsic)) * 500;
 
             %% Let the intrinsic parameters converge
-            while( norm(theta_intrinsic - old_theta_intr) > 0.001)
+            while( norm(theta_intrinsic - old_theta_intr) > 0.01)
                 %% E step (SMC) for one neuron                
                 old_theta_intr = theta_intrinsic;
                 beta_subset = reshape(beta(i,:,:), N, S - 1);
@@ -114,7 +118,7 @@ while(norm(w - w_prev) > thresh_w)
             end
         end
     end
-    spmd(N)
+    spmd
         for i = drange(1:N)
             %% M step for all parameters
             theta = [b(i) w(i,:) reshape(beta(i, :, :),1,N*S-N)];
@@ -126,12 +130,15 @@ while(norm(w - w_prev) > thresh_w)
             beta(i,:,:) = reshape(theta(N+2:end), 1, N, (S - 1));
         end
     end % spmd
+    
+
+    
     %% Log likelihood for whole model
     %nll = log_likelihood(beta, b, w, h, n, delta, p_weights);
     %ll = [ll nll];
     %disp('nll =');
     %disp(nll);        
-    save('iteration_run.mat')
+    dsave('iteration_run.mat')
 end
 
 save('finished_run.mat');
