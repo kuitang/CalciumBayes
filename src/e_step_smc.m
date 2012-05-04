@@ -1,4 +1,4 @@
-function [ pb h ] = e_step_smc( i, M, tau, delta, sigma, beta, b, w, data )
+function [ pb h ] = e_step_smc( i, M, tau, delta, sigma, b, w, data )
 %e_step_smc Perform the sampling SMC E-step for one neuron
 %   i - which neuron (scalar)
 %   M - number of particles (scalar)
@@ -15,7 +15,7 @@ function [ pb h ] = e_step_smc( i, M, tau, delta, sigma, beta, b, w, data )
 %   h - samples (N x T x M)
 
 [N, T] = size(data);
-S = size(beta,2) + 1;
+% S = size(beta,2) + 1;
 
 sd = sigma*sqrt(delta);
 
@@ -32,12 +32,12 @@ h(:,S+1,:) = normrnd(0, sd, N, M);
 % Now draw samples using modified Equation (11) in [Mischenko11]
 %lastspike = -S;
 % should start at S + 2
-for t = S+2 : T 
+for t = 1 : T 
     % Sequential importance resampling
     
     % I doesn't depend on samples, so compute here
-    I_terms = beta .* data(:,(t-2):-1:(t-S));
-    I = sum(I_terms(:));
+%     I_terms = beta .* data(:,(t-2):-1:(t-S));
+%     I = sum(I_terms(:));
     
     for m = 1 : M
         % Draw from the one-step-ahead proposal
@@ -52,7 +52,7 @@ for t = S+2 : T
         %h(:,t,m) = normrnd(h_mean, sd);        
         h(:,t,m) = randn(N, 1) * sd + h_mean;
 
-        J = b + I + w * h(:,t,m);
+        J = b + w * h(:,t,m);
 
         % Compute probabilities
         % q = normpdf(h(:,t,m), h_mean, sd)
@@ -106,7 +106,7 @@ pb(T,:) = pf(T,:);
 % But here our diagonal is also constant.
 %normpdf_normalizer = (2*pi)^(N/2) * (N*sd^2)^(-.5);
 
-for t_index = 0:(T-S-2)
+for t_index = 0:T-2
     
     t = T - t_index;
     

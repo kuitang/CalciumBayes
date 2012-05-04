@@ -1,4 +1,4 @@
-function [q g H] = q_single_neuron_full(theta, beta, w, h, n, i, delta, tau, sigma, p_weights)
+function [q g H] = q_single_neuron_full(theta, w, h, n, i, delta, tau, sigma, p_weights)
 
 %function q = q_single_neuron(theta_intrinsic, params, h, n, i, delta, tau, sigma, p_weights)
 %Q_SINGLE_NEURON 
@@ -28,7 +28,7 @@ function [q g H] = q_single_neuron_full(theta, beta, w, h, n, i, delta, tau, sig
 
 %beta = params.beta;
 % lambda = params.lambda;
-S  = size(beta,2) + 1;
+% S  = size(beta,2) + 1;
 [N, T] = size(n);
 %beta = squeeze(params.beta(i,:,:));
 M = size(h,3);
@@ -38,8 +38,8 @@ b_i = theta(1);
 
 %reg_param1 = 1e1;
 %reg_param2 = 1e1;
-reg_param1 = 0;
-reg_param2 = 0;
+reg_param1 = 5;
+% reg_param2 = 0;
 q_sum = 0;
 
 g = zeros(N*S+1, 1);
@@ -67,11 +67,11 @@ for t = S+1:T
     ddQ = 0;
     
     % I doesn't depend on samples, so compute here
-    I_terms = beta .* n(:,(t-2):-1:(t-S));
-    I = sum(I_terms(:));    
+%     I_terms = beta .* n(:,(t-2):-1:(t-S));
+%     I = sum(I_terms(:));    
     
     for m = 1:M                
-        J = b_i + I + w * h(:,t,m);
+        J = b_i + w * h(:,t,m);
         
         eJd = exp(J)*delta;
         % The expensive computations happen when n(i,t) == 1, which is
@@ -131,16 +131,16 @@ end
 
 % Add regularization (to the variables only)
 
-flatbeta = beta(:);
+% flatbeta = beta(:);
 
 g = -g;
 g(2) = g(2) + reg_param1 * sum(sign(w));
-g(3:end) = g(3:end) + reg_param2 * sum(sign(flatbeta));
+% g(3:end) = g(3:end) + reg_param2 * sum(sign(flatbeta));
 
 H = -H;
 
 % No regularization for H, since the L1 regularization terms have zero
 % second derivative
 
-q = -q_sum + reg_param1 * sum(abs(w)) + reg_param2 * sum(abs(flatbeta));
+q = -q_sum + reg_param1 * sum(abs(w));
 %q = -q_sum;
