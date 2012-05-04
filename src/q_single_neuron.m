@@ -92,10 +92,18 @@ for t = S+1:T
 
         if(any(isnan([Qm dQm ddQm])))
             disp('FAIL!!!!!');
-            assert(all(~isnan([Qm dQm ddQm])))
+%            assert(all(~isnan([Qm dQm ddQm])))
         end
-        
+        if(isnan(Qm))
+          disp('Qm is nan');
+        end
+      %  disp(Qm);
+
         q_sum = q_sum + p_weights(t,m) * Qm;
+        if(isnan(q_sum))
+          disp(p_weights(t,m));
+          disp(Qm);
+        end
         dQ    = dQ  + p_weights(t,m) * dQm;
         ddQ   = ddQ + p_weights(t,m) * ddQm;                   
 
@@ -141,5 +149,8 @@ H = -H;
 % No regularization for H, since the L1 regularization terms have zero
 % second derivative
 
-q = -q_sum + reg_param1 * abs(w(i)) + reg_param2 * sum(abs(flatbeta));
+q = -q_sum + reg_param1 * abs(w(i)) + reg_param2 * sum(abs(flatbeta))
+disp(isnan(q));
+
+
 %q = -q_sum;
