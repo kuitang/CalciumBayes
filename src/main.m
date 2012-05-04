@@ -36,7 +36,7 @@ M = 50; % size of particle sampler
 
 %% Set codistributed arrays
 if run_parallel
-    spmd
+    spmd(N)
         codist = codistributor1d(1);
         beta = zeros(N, N, S-1, codist);
         % lambda = ones(N, S);
@@ -86,12 +86,13 @@ w_prev = ones(size(w)) * 500;
 thresh_w = .001;
 
 ll = -Inf;
+
 while(norm(w - w_prev) > thresh_w)    
     
     w_prev = w;
         
         
-    spmd   
+    spmd(N)  
         for i = drange(1:N)
             disp(['Neuron ' num2str(i) '/' num2str(N)]);            
 
@@ -118,7 +119,7 @@ while(norm(w - w_prev) > thresh_w)
             end
         end
     end
-    spmd
+    spmd(N)
         for i = drange(1:N)
             %% M step for all parameters
             theta = [b(i) w(i,:) reshape(beta(i, :, :),1,N*S-N)];
@@ -137,9 +138,14 @@ while(norm(w - w_prev) > thresh_w)
     %nll = log_likelihood(beta, b, w, h, n, delta, p_weights);
     %ll = [ll nll];
     %disp('nll =');
-    %disp(nll);        
-    dsave('iteration_run.mat')
+    %disp(nll); 
+
 end
+
+w_gather = gather(w);
+b_gather = gather(b);
+beta_gather = gather(beta);
+h_gather = gather(h);
 
 save('finished_run.mat');
 
