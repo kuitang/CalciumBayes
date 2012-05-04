@@ -50,8 +50,8 @@ for t = S+2 : T
         %I haven't figured out how to sample from conditional for one-ahead
         h_mean = (1 - delta/tau) * h(:,t-1,m) + data(:,t-1);        
         % normrnd wastes time error-checking        
-        h(:,t,m) = normrnd(h_mean, sd);        
-        %h(:,t,m) = randn(N, 1) * sd + h_mean;
+        %h(:,t,m) = normrnd(h_mean, sd);        
+        h(:,t,m) = randn(N, 1) * sd + h_mean;
 
         J = b + I + w * h(:,t,m);
 
@@ -189,7 +189,11 @@ for t_index = 0:(T-S-2)
     pb(t-1,:) = sum(r, 1);%sum over 1 or 2 here? I THINK 1 - BS
     
     pb(t-1,:) = pb(t-1,:) / sum(pb(t-1,:));
+<<<<<<< HEAD
     if(isnan(sum(sum(pb))))
+=======
+    if(isnan(sum(sum(b))))
+>>>>>>> a049df48e7ea1a24f9a575f3988dd7cb06eead9d
       disp('PB WEIGHT IS NAN!!!');
     end
 end
