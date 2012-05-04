@@ -40,8 +40,8 @@ if run_parallel
         codist = codistributor1d(1);
         beta = zeros(N, N, S-1, codist);
         % lambda = ones(N, S);
-        b = zeros(N, 1, codist);
-        w = ones(N, N, codist) .* .1*exprnd(.9,N);
+        b = ones(N, 1, codist);
+        w = zeros(N, N, codist) .* .1*exprnd(.9,N);
         p_weights = zeros(N,T,M,codist);
         % for i=1:N/5
         %     rand_inh
@@ -52,9 +52,9 @@ if run_parallel
         w = w .* binornd(1,.1,N,N);%second arg is "sparesness"
 
 
-        for i = drange(1:N)
-            w(i,i) = -abs(normrnd(.6,.2));
-        end
+%        for i = drange(1:N)
+%            w(i,i) = -abs(normrnd(.6,.2));
+%        end
     end
 else
     %% Set noncodistributed arrays
@@ -106,9 +106,9 @@ while(norm(w - w_prev) > thresh_w)
             old_theta_intr = ones(size(theta_intrinsic)) * 500;
 
             %% Let the intrinsic parameters converge
-            while(theta_intrinsic(1) - old_theta_intr(1) > .1 || norm(theta_intrinsic(2:end) - old_theta_intr(2:end)) > 0.01)
+            while(theta_intrinsic(2) - old_theta_intr(2) > .1 || norm(theta_intrinsic([1 3:end]) - old_theta_intr([1 3:end])) > 0.01)
                 
-                disp(['NEURON ' num2str(i) ' NORM: ' num2str(norm(theta_intrinsic(2:end) - old_theta_intr(2:end))]);
+                disp(['NEURON ' num2str(i) ' NORM: ' num2str(norm(theta_intrinsic([1 3:end]) - old_theta_intr([1 3:end])))]);
                 
                 %% E step (SMC) for one neuron                
                 old_theta_intr = theta_intrinsic;
