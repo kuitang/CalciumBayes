@@ -37,8 +37,8 @@ beta(i,:) = reshape(theta_intrinsic(3:1+S), 1, S - 1);
 
 %reg_param1 = 1e1;
 %reg_param2 = 1e1;
-reg_param1 = 0; 
-reg_param2 = 0;
+reg_param1 = 10; 
+reg_param2 = 10;
 q_sum = 0;
 
 g = zeros(S + 1, 1);
