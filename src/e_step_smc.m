@@ -149,7 +149,10 @@ for t_index = 0:(T-S-2)
     
     pb(t-1,:) = sum(r, 1);%sum over 1 or 2 here? I THINK 1 - BS
     
-    pb(t-1,:) = pb(t-1,:) / sum(pb(t-1,:)) ;
+    pb(t-1,:) = pb(t-1,:) / sum(pb(t-1,:));
+    if(isnan(sum(sum(b))))
+      disp('PB WEIGHT IS NAN!!!');
+    end
 end
 
 sample_expectation_mean = zeros(1, T);
